@@ -1,5 +1,6 @@
 #include "common.hpp"
 #include "build_info.hpp"
+#include "compatibility.hpp"
 #include <QCryptographicHash>
 #include <QDir>
 #include <QFile>
@@ -35,12 +36,16 @@ QString digest(const QString &path) {
 }
 bool compatible(QString *reason) {
     bool ok = digest(PA_KWIN_LIBRARY) == PA_KWIN_SHA256 && digest(PA_KWIN_EXECUTABLE) == PA_EXECUTABLE_SHA256;
-    if (!ok && reason) *reason = "KWin 文件与构建时不同，请重新运行 install.sh 编译适配。";
+    if (!ok && reason) *reason = "KWin 文件与构建时不同，请运行 pointeraccel repair；未支持的版本需要代码适配。";
     return ok;
 }
 QJsonObject buildInfo() {
     return {{"version", PA_VERSION}, {"kwin_version", PA_KWIN_VERSION},
+            {"image_build_id",imageBuildId(reinterpret_cast<const void *>(&buildInfo))},
             {"kwin_library", PA_KWIN_LIBRARY}, {"kwin_sha256", PA_KWIN_SHA256},
+            {"kwin_executable", PA_KWIN_EXECUTABLE}, {"executable_sha256", PA_EXECUTABLE_SHA256},
+            {"kwin_build_id", PA_KWIN_BUILD_ID}, {"executable_build_id", PA_EXECUTABLE_BUILD_ID},
+            {"kwin_iid", "org.kde.kwin.PluginFactoryInterface" PA_KWIN_VERSION},
             {"engine", "windows-pointer-linux 1.0.0 (BSD-3-Clause)"},
             {"capture_abi", 1}, {"report_capacity", static_cast<int>(PA_REPORT_CAPACITY)}};
 }

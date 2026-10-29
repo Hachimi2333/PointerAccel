@@ -1,6 +1,7 @@
 #include "common.hpp"
 #include "capture.hpp"
 #include "build_info.hpp"
+#include "compatibility.hpp"
 #include <kwin/plugin.h>
 #include <kwin/input.h>
 #include <kwin/pointer_input.h>
@@ -95,6 +96,7 @@ public Q_SLOTS:
         return jsonText({{"installed",installed},{"loaded",true},{"configured_enabled",config.enabled},
                          {"active",active},{"temporary_override",temporary.has_value()},
                          {"healthy",fault.isEmpty()},{"compatible",compatibility},
+                         {"running_compatible",compatibility},{"running_build",pa::buildInfo()},
                          {"state",!fault.isEmpty()?"error":!active?"disabled":processed==0?"idle":"active"},
                          {"error",fault},{"processed",static_cast<double>(processed)},
                          {"settings",pa::toJson(config)}});
@@ -124,7 +126,7 @@ public Q_SLOTS:
     Q_SCRIPTABLE QString ApplyConfig() { temporary.reset();apply();return Status(); }
     Q_SCRIPTABLE QString SetTemporaryEnabled(bool enabled) { temporary=enabled;apply();return Status(); }
     Q_SCRIPTABLE QString ResetState() { engine.reset();return jsonText({{"ok",true}}); }
-    Q_SCRIPTABLE QString Shutdown() { temporary=false;deactivate();return Status(); }
+    Q_SCRIPTABLE QString Shutdown() { temporary=false;if(deactivate())fault.clear();return Status(); }
 #ifdef PA_TESTING
     Q_SCRIPTABLE QString TestHotplug() {
         if (!testBackend || !QCoreApplication::arguments().contains("--virtual")) return "{}";
@@ -238,7 +240,7 @@ private:
         fault.clear();
         config=pa::readConfig(&fault);
         if (!config.trace) {traceCount=0;traceNext=0;}
-        compatibility=pa::compatible(&fault);
+        compatibility=pa::runtimeCompatible(pa::buildInfo(),&fault);
         if (!compatibility || !fault.isEmpty()) return;
         engine.configure(config.settings);
         if (!temporary.value_or(config.enabled)) return;
@@ -320,6 +322,16 @@ class PointerAccelFactory final : public KWin::PluginFactory {
     Q_PLUGIN_METADATA(IID PluginFactory_iid FILE "kwin_plugin.json")
     Q_INTERFACES(KWin::PluginFactory)
 public:
-    std::unique_ptr<KWin::Plugin> create() const override { return std::make_unique<PointerAccelPlugin>(); }
+    std::unique_ptr<KWin::Plugin> create() const override {
+        QString error;
+        auto expected=pa::buildInfo();
+#ifdef PA_TEST_RUNTIME_MISMATCH
+        expected["kwin_build_id"]="0000000000000000000000000000000000000000";
+#endif
+        if(!pa::runtimeCompatible(expected,&error)) {
+            qWarning().noquote()<<"PointerAccel:"<<error;return {};
+        }
+        return std::make_unique<PointerAccelPlugin>();
+    }
 };
 #include "kwin_plugin.moc"

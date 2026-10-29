@@ -73,6 +73,8 @@ def inside(build):
             corrupt=rpc("TestReports",json.dumps({"reports":reports[:2],"corrupt":True}))
             assert not corrupt["status"]["active"] and not corrupt["status"]["healthy"],corrupt
             assert len(corrupt["observed"])==1,corrupt
+            shutdown=rpc("Shutdown")
+            assert shutdown["healthy"] and not shutdown["active"],shutdown
             assert rpc("ApplyConfig")["active"]
             protocol_reports=[r for r in reports if r["device"]!=2 and (r["x"] or r["y"])]
             client_env=env|{k:v for k,v in rpc("TestEnvironment").items() if v}

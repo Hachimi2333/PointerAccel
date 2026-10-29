@@ -1,7 +1,22 @@
 #include "common.hpp"
+#include "compatibility.hpp"
+#include <QTemporaryFile>
 #include <gtest/gtest.h>
 #include <cmath>
 #include <limits>
+
+TEST(Compatibility, ReadsTheMappedExecutableBuildIdAndRejectsMissingOrWrongRuntime) {
+    const auto actual=pa::runtimeIdentity();
+    const auto file=pa::elfBuildId("/proc/self/exe");
+    ASSERT_FALSE(file.isEmpty());
+    EXPECT_EQ(actual["executable_build_id"].toString(),file);
+    QString error;
+    EXPECT_FALSE(pa::runtimeCompatible({},&error));
+    EXPECT_FALSE(error.isEmpty());
+    EXPECT_FALSE(pa::runtimeCompatible({{"kwin_build_id","bad"},{"executable_build_id",file}},&error));
+    QTemporaryFile invalid;ASSERT_TRUE(invalid.open());invalid.write("not an ELF");invalid.flush();
+    EXPECT_TRUE(pa::elfBuildId(invalid.fileName()).isEmpty());
+}
 
 TEST(Adapter, RejectsTransformedOrInvalidRawCoordinates) {
     EXPECT_FALSE(pa::rawMotion(0.5,1));

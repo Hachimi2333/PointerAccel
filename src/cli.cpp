@@ -1,8 +1,10 @@
 #include "common.hpp"
+#include "session.hpp"
 #include <QCoreApplication>
 #include <QDBusInterface>
 #include <QDBusReply>
 #include <QFile>
+#include <QFileInfo>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QSaveFile>
@@ -45,8 +47,8 @@ int internalPlugin(const QStringList &args) {
                           {"value",group.readEntry(key,QString())}};
         QString why;return pa::writeJson(args[2],saved,&why)?0:fail(why);
     }
-    if (args[1]=="enable" && args.size()==2) {
-        group.writeEntry(key,true);if (!config.sync()) return fail("无法保存 KWin 自启设置。");
+    if ((args[1]=="enable" || args[1]=="guard") && args.size()==2) {
+        group.writeEntry(key,args[1]=="enable");if (!config.sync()) return fail("无法保存 KWin 自启设置。");
         output<<pa::digest(path)<<'\n';return 0;
     }
     if (args[1]=="restore" && args.size()==4) {
@@ -77,6 +79,7 @@ void usage() {
       "  pointeraccel config set enhance-pointer-precision on|off\n"
       "  pointeraccel config set trace on|off\n"
       "  pointeraccel reset-state\n"
+      "  pointeraccel repair [--source /path/to/PointerAccel]\n"
       "  pointeraccel raw-probe wayland|x11  （关闭窗口或 Ctrl+C 结束）\n"
       "启停和配置默认持久保存。--temporary 只影响当前会话。\n"
       "doctor: 0=正常（包括停用/空闲），1=异常；参数错误返回 2。\n";
@@ -88,6 +91,16 @@ int main(int argc,char **argv) {
     bool json=args.removeAll("--json");
     if (args.isEmpty() || args==QStringList{"--help"} || args==QStringList{"help"}) {usage();return 0;}
     if (args[0]=="internal-plugin") return internalPlugin(args);
+    if (args==QStringList{"internal-watch"}) return pa::watchSession();
+    if (args==QStringList{"internal-startup-status"}) {print(pa::startupStatus());return 0;}
+    if (args.size()==2 && args[0]=="internal-session-stamp") {
+        QString why;return pa::writeJson(args[1],pa::sessionStamp(),&why)?0:fail(why);
+    }
+    if (args[0]=="repair") {
+        if(args.size()==1)return pa::repair({});
+        if(args.size()==3 && args[1]=="--source")return pa::repair(args[2]);
+        return fail("用法: pointeraccel repair [--source /path/to/PointerAccel]",2);
+    }
     if (args.size()==2 && args[0]=="raw-probe" && (args[1]=="wayland" || args[1]=="x11")) {
         QProcess probe;probe.setProcessChannelMode(QProcess::ForwardedChannels);probe.setInputChannelMode(QProcess::ForwardedInputChannel);
         probe.start(QCoreApplication::applicationDirPath()+"/pointeraccel-raw-"+args[1],QStringList());
@@ -96,7 +109,8 @@ int main(int argc,char **argv) {
     }
     if (args==QStringList{"internal-init-config"}) {QString why;return QFile::exists(pa::configPath())||pa::writeConfig({},&why)?0:fail(why);}
     if (args==QStringList{"internal-shutdown"}) {
-        QString why;request("Shutdown",{},&why);return why.isEmpty()?0:fail(why);
+        QString why;const auto status=request("Shutdown",{},&why);
+        return why.isEmpty() && !status["active"].toBool() && status["healthy"].toBool()?0:fail(why.isEmpty()?status["error"].toString():why);
     }
     QString configError;auto config=pa::readConfig(&configError);
     const auto command=args[0];
@@ -104,30 +118,44 @@ int main(int argc,char **argv) {
     if ((command=="status" || command=="doctor") && args.size()==1) {
         QString why;auto status=request("Status",{},&why);
         const bool installed=QFile::exists(pa::manifestPath());
+        const auto startup=pa::startupStatus();
         if (!why.isEmpty()) {
-            QString mismatch;const bool compatible=pa::compatible(&mismatch);
             status={{"installed",installed},{"loaded",false},{"active",false},{"configured_enabled",config.enabled},
-                    {"compatible",compatible},{"healthy",false},{"state",installed?"pending-login":"not-installed"},
-                    {"error",mismatch.isEmpty()?why:mismatch},{"settings",pa::toJson(config)}};
+                    {"compatible",false},{"running_compatible",false},{"healthy",false},{"state",startup["startup_state"]},
+                    {"error",startup["error"]},{"settings",pa::toJson(config)}};
+            if(startup["startup_state"]=="ready") {status["state"]="load-failed";status["error"]=why;}
+        } else {
+            if(!status.contains("running_compatible"))status["running_compatible"]=status["compatible"];
+            QString infoError;status["running_build"]=request("Info",{},&infoError);
         }
         status["configuration_valid"]=configError.isEmpty();
-        status["autostart_configured"]=KConfig(pa::kwinConfigPath(),KConfig::SimpleConfig).group("Plugins").readEntry("pointeraccel_kwinEnabled",false);
-        status["module_file_present"]=QFile::exists(pa::pluginPath());
-        QFile moduleHash(pa::stateRoot()+"/system.sha256");
-        const bool hashReadable=moduleHash.open(QIODevice::ReadOnly);
-        const auto expected=hashReadable?QString::fromLatin1(moduleHash.readAll().trimmed()):QString();
-        status["module_file_valid"]=!expected.isEmpty() && pa::digest(pa::pluginPath())==expected;
-        QString mismatch;status["startup_compatible"]=pa::compatible(&mismatch);
-        if (!mismatch.isEmpty()) status["error"]=mismatch;
+        const bool direct=KConfig(pa::kwinConfigPath(),KConfig::SimpleConfig).group("Plugins").readEntry("pointeraccel_kwinEnabled",false);
+        status["direct_autostart_enabled"]=direct;
+        status["autostart_configured"]=!direct && QFile::exists(pa::sessionUnitPath()) && QFileInfo(pa::sessionLinkPath()).isSymLink();
+        for(const auto *key:{"startup_state","startup_compatible","repair_required","relogin_required","module_file_present","module_file_valid","installed_build","installed_kwin_version"})
+            status[key]=startup[key];
+        const auto runningBuild=status["running_build"].toObject(),installedBuild=startup["installed_build"].toObject();
+        const bool moduleMatches=status["loaded"].toBool() && !runningBuild["image_build_id"].toString().isEmpty()
+            && runningBuild["image_build_id"]==installedBuild["module_build_id"];
+        status["running_module_matches_install"]=moduleMatches;
+        if(status["loaded"].toBool() && !moduleMatches) {
+            status["relogin_required"]=true;
+            if(status["startup_state"]=="ready") {
+                status["startup_state"]="pending-login";
+                status["error"]="当前仍驻留旧模块，请重新登录以加载已安装的新模块。";
+            }
+        }
+        if(!startup["error"].toString().isEmpty())status["error"]=startup["error"];
+        if(!configError.isEmpty())status["error"]=configError;
         const bool healthy=status["healthy"].toBool() && configError.isEmpty() && installed
             && status["module_file_valid"].toBool() && status["autostart_configured"].toBool()
-            && status["startup_compatible"].toBool();
+            && status["startup_state"]=="ready" && status["running_compatible"].toBool() && moduleMatches;
         status["healthy"]=healthy;
         if (json || command=="doctor") print(status);
         else {
             output<<"状态: "<<status["state"].toString()<<"\n配置启用: "<<(status["configured_enabled"].toBool()?"是":"否")
                   <<"\n模块加载: "<<(status["loaded"].toBool()?"是":"否")<<"\n实际生效: "<<(status["active"].toBool()?"是":"否")
-                  <<"\n健康: "<<(healthy?"正常":"待处理")<<'\n';
+                  <<"\n健康: "<<(healthy?"正常":"待处理")<<"\n下次启动: "<<status["startup_state"].toString()<<'\n';
             if (!status["error"].toString().isEmpty()) output<<status["error"].toString()<<'\n';
         }
         return command=="doctor"&&!healthy?1:0;

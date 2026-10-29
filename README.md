@@ -12,7 +12,9 @@
 ./install.sh
 ```
 
-脚本先检查、构建、运行测试，再安装。只有安装一个独立 KWin 模块时调用 `sudo`，在终端输入密码即可。它不会安装依赖包，不会重启桌面。安装成功后保存工作，手动注销并重新登录 Plasma。
+脚本先检查 KWin 运行包与开发包、构建、运行测试，再安装。只有安装一个独立 KWin 模块及其兼容记录时调用 `sudo`，在终端输入密码即可。它不会安装依赖包，不会重启桌面。安装成功后保存工作，手动注销并重新登录 Plasma。
+
+登录后，独立的用户服务先校验安装和 KWin 文件，再请求 KWin 加载模块。KWin 的 `pointeraccel_kwinEnabled` 直接自启键保持关闭，这是正常配置。检查失败时使用原生输入，并通过桌面通知和 `doctor` 报告原因。检查服务不链接 `libkwin`，也不会在后台编译或提权。
 
 Fedora 44 / KWin 6.7.5 的构建依赖：
 
@@ -34,6 +36,7 @@ sudo dnf install \
 ```bash
 pointeraccel status
 pointeraccel doctor
+pointeraccel repair
 pointeraccel info --json
 pointeraccel disable
 pointeraccel enable
@@ -52,7 +55,7 @@ pointeraccel diagnostics --json
 
 启停默认持久保存；`--temporary` 仅改变当前模块的状态，下一次加载恢复保存值。速度、EPP 和排除列表立即应用。配置保存在 `~/.config/pointeraccel/config.json`，直接编辑后可用任一持久 CLI 设置触发重载。无效配置会停用算法，不会静默采用错误值。
 
-状态分别显示保存的启用设置、模块是否加载、实际是否生效及健康状态。`idle` 表示已启用但尚未处理鼠标报告，不是故障。`doctor` 正常返回 0，异常返回 1；命令行参数错误返回 2。尚未重新登录时显示 `pending-login`。
+状态分别显示保存的启用设置、模块是否加载、实际是否生效及健康状态。`idle` 表示已启用但尚未处理鼠标报告，不是故障。`doctor` 正常返回 0，异常、需要修复或需要重新登录时返回 1；命令行参数错误返回 2。正常禁用和空闲仍返回 0。
 
 短期记录逐报告诊断数据：
 
@@ -63,6 +66,47 @@ pointeraccel config set trace off
 ```
 
 记录默认关闭，仅存于模块内存，最多 4096 份；关闭后清除记录计数。常规诊断只保留最近一份样本和累计计数。输入处理过程中不写磁盘、不调用同步 D-Bus。
+
+## KWin 升级与修复
+
+模块二进制绑定具体 KWin 构建：版本 IID、库与可执行文件的 SHA-256 都必须匹配。同为 6.7.5 的发行版重打包也可能需要重新编译。升级后运行：
+
+```bash
+pointeraccel status --json
+pointeraccel repair
+```
+
+修复默认使用安装时保存的源码快照，原项目目录移动或删除后仍可使用。它在独立缓存目录构建并运行完整测试，成功后调用 sudo 安装；不自动拉取代码或安装依赖。若需要使用修改后的源码：
+
+```bash
+pointeraccel repair --source /path/to/PointerAccel
+```
+
+修复成功后手动注销并重新登录。程序不会把新模块热加载到当前 KWin，也不会自动重启桌面。首次使用本次改进时，先在源码目录运行 `./install.sh`，把旧的直接自启安装迁移到检查服务。
+
+| 状态字段/值 | 含义 |
+| --- | --- |
+| `running_compatible` | 当前 KWin 与已加载模块是否匹配 |
+| `startup_compatible` | 磁盘上的 KWin 与安装模块是否匹配 |
+| `startup_state: ready` | 当前登录允许检查服务加载模块 |
+| `startup_state: pending-login` | 安装/修复已完成或运行版本落后，需要重新登录 |
+| `startup_state: repair-required` | 支持的 6.7 系列已变化，需要重建 |
+| `startup_state: unsupported` | KWin 不属于已支持的 6.7 系列，需要代码适配 |
+| `startup_state: blocked` | 安装文件、兼容清单或事务异常，已阻止加载 |
+| `repair_required` / `relogin_required` | 分别表示需要修复或重新登录 |
+
+在线升级时，旧 KWin 与旧模块可以继续正常工作，因此可能同时看到 `active: true` 和 `repair_required: true`。模块运行时核验进程内的 GNU Build ID，配置变更不会仅因磁盘更新而停用旧模块。下次登录若不匹配则不加载模块，鼠标恢复系统原生行为。
+
+KWin 6.8 及以后明确拒绝构建和自动加载；重新编译不能代替接口适配。检查服务监听会话和文件变化，每 30 秒补查一次文件属性，仅变化时重新计算哈希；相同故障和构建组合的桌面通知去重。
+
+安装/修复的构建、测试、更新竞态或部署失败会中止并恢复已有安装。若断电或强制杀进程留下未完成事务，从源码目录执行：
+
+```bash
+./install.sh --recover
+./install.sh
+```
+
+`--recover` 恢复未提交事务的系统模块及用户文件；系统端已经提交且用户清单完整时保留已完成安装。恢复日志与备份保存在 `XDG_STATE_HOME` 下、安装状态目录旁，正常完成后删除。日志或备份已丢失时停止自动恢复并保留现状，需要人工核查，不能强行覆盖。
 
 ## 卸载与恢复
 
@@ -95,12 +139,13 @@ pointeraccel config set trace off
 | 位置 | 内容 |
 | --- | --- |
 | `/usr/lib64/qt6/plugins/kwin/plugins/pointeraccel_kwin.so` | 独立原生模块，root 所有；其他用户默认不启用 |
-| `/usr/local/share/pointeraccel/` | 系统模块所有权、校验值及安装事务记录 |
-| `~/.local/share/pointeraccel/` | CLI、诊断工具、卸载脚本、说明与许可证 |
+| `/usr/local/share/pointeraccel/` | 系统模块所有权、兼容清单、校验值及安装事务记录 |
+| `~/.local/share/pointeraccel/` | CLI、诊断工具、卸载脚本、源码快照、说明与许可证 |
 | `~/.local/bin/pointeraccel` | 指向 CLI 的符号链接 |
 | `~/.config/pointeraccel/config.json` | 用户设置 |
-| `~/.local/state/pointeraccel/` | 文件清单、配置备份与自启校验值 |
-| `~/.config/kwinrc` 的 `[Plugins] pointeraccel_kwinEnabled` | 当前用户登录时加载模块 |
+| `~/.local/state/pointeraccel/` | 文件清单、配置备份、安装会话与通知去重记录 |
+| `~/.config/systemd/user/pointeraccel-session.service` 及其 Plasma target 链接 | 当前用户的兼容检查与延迟加载服务 |
+| `~/.config/kwinrc` 的 `[Plugins] pointeraccel_kwinEnabled` | 设为 false，交由检查服务加载；卸载恢复原值 |
 
 用户数据目录遵循 `XDG_DATA_HOME`、`XDG_CONFIG_HOME` 和 `XDG_STATE_HOME`。安装和卸载时应保持这些变量一致。系统目录固定为本项目验证过的 Fedora 布局。
 
@@ -114,9 +159,9 @@ KWin 6.7 会先合并连续的 libinput 报告。模块通过 ELF 导入表接�
 
 Windows 整数输出可能为零，即使原始报告非零。KWin 默认会跳过这种报告的相对消息，因此模块在正常转发过滤器之前补发其 raw 数据；锁屏、拖拽和其他先行过滤器仍先处理事件。桌面位移继续保持算法输出的零值。
 
-模块加载、输入拦截和 KWin 版本检查是不同层次。二进制模块遵守 KWin 的版本 IID，并额外核对构建时的 KWin 库和可执行文件 SHA-256。缺少导入入口、原函数不匹配、报告校验失败、队列溢出或崩溃恢复启动时，算法不会继续应用。报告批次验证在推进引擎状态前完成，失败批次按原合并事件传递一次。
+模块加载、输入拦截和 KWin 版本检查是不同层次。二进制模块遵守 KWin 的版本 IID，检查服务核对构建时的 KWin 库和可执行文件 SHA-256，模块工厂在创建输入处理对象前核对进程内的 GNU Build ID。缺少导入入口、原函数不匹配、报告校验失败、队列溢出或崩溃恢复启动时，算法不会继续应用。报告批次验证在推进引擎状态前完成，失败批次按原合并事件传递一次。
 
-此适配依赖 KWin 内部接口。KWin 6.7 系列升级后重新运行安装脚本进行构建和测试；6.8 及以后明确拒绝构建，需审查适配。库更新后，应重新登录以结束旧模块的驻留。算法一致性不等于对所有 Windows 版本、游戏或硬件延迟的独立认证。
+此适配依赖 KWin 内部接口。KWin 6.7 系列升级后运行 `pointeraccel repair` 进行构建和测试；6.8 及以后明确拒绝构建，需审查适配。修复后重新登录以加载对应的新模块。算法一致性不等于对所有 Windows 版本、游戏或硬件延迟的独立认证。
 
 ## 构建与测试
 
