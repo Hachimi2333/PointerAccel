@@ -1,0 +1,5 @@
+<RCC>
+  <qresource prefix="/pointeraccel/gui">
+    <file>Main.qml</file>
+  </qresource>
+</RCC>

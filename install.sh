@@ -126,6 +126,7 @@ pa_install_binary() {
     mv -f -- "$temporary" "$2"
 }
 pa_install_binary "$pa_program" "$pa_data/bin/pointeraccel"
+pa_install_binary "$pa_build/pointeraccel-gui" "$pa_data/bin/pointeraccel-gui"
 pa_install_binary "$pa_build/pointeraccel-raw-wayland" "$pa_data/bin/pointeraccel-raw-wayland"
 pa_install_binary "$pa_build/pointeraccel-raw-x11" "$pa_data/bin/pointeraccel-raw-x11"
 install -m0755 -- "$pa_source/uninstall.sh" "$pa_data/uninstall.sh"
@@ -154,7 +155,7 @@ printf '%s\n' "$pa_sha" > "$pa_state/system.sha256"
 "$pa_data/bin/pointeraccel" internal-session-stamp "$pa_state/session.json"
 pa_manifest_new="$pa_state/manifest.new"
 : > "$pa_manifest_new"
-for pa_path in "$pa_data/bin/pointeraccel" "$pa_data/bin/pointeraccel-raw-wayland" "$pa_data/bin/pointeraccel-raw-x11" "$pa_data/uninstall.sh" "$pa_data/scripts/paths.sh" "$pa_data/scripts/system-plugin.sh" "$pa_data/scripts/maintenance.py" "$pa_data/source.tar.gz" "$pa_data/README.md" "$pa_data/licenses/PointerAccel.txt" "$pa_data/licenses/windows-pointer-linux.txt" "$pa_state/owner" "$pa_state/system.sha256" "$pa_state/session.json" "$pa_unit" "$pa_state/backups/kwin.json" "$pa_state/backups/config.before"; do
+for pa_path in "$pa_data/bin/pointeraccel" "$pa_data/bin/pointeraccel-gui" "$pa_data/bin/pointeraccel-raw-wayland" "$pa_data/bin/pointeraccel-raw-x11" "$pa_data/uninstall.sh" "$pa_data/scripts/paths.sh" "$pa_data/scripts/system-plugin.sh" "$pa_data/scripts/maintenance.py" "$pa_data/source.tar.gz" "$pa_data/README.md" "$pa_data/licenses/PointerAccel.txt" "$pa_data/licenses/windows-pointer-linux.txt" "$pa_state/owner" "$pa_state/system.sha256" "$pa_state/session.json" "$pa_unit" "$pa_state/backups/kwin.json" "$pa_state/backups/config.before"; do
     if [[ -f $pa_path ]]; then pa_sha=$(sha256sum -- "$pa_path");printf 'F\t%s\t%s\n' "${pa_sha%% *}" "$pa_path" >> "$pa_manifest_new";fi
 done
 printf 'L\t%s\t%s\n' "$pa_data/bin/pointeraccel" "$pa_cli" >> "$pa_manifest_new"

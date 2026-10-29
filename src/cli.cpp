@@ -1,8 +1,9 @@
 #include "common.hpp"
 #include "session.hpp"
+#include "control.hpp"
+#include <cerrno>
+#include <cstring>
 #include <QCoreApplication>
-#include <QDBusInterface>
-#include <QDBusReply>
 #include <QFile>
 #include <QFileInfo>
 #include <QJsonArray>
@@ -20,14 +21,7 @@ QTextStream output(stdout),errors(stderr);
 void print(const QJsonObject &o) {output<<QJsonDocument(o).toJson(QJsonDocument::Indented);output.flush();}
 int fail(const QString &why,int code=1) {errors<<why<<'\n';return code;}
 QJsonObject request(const QString &method,const QVariantList &args,QString *error) {
-    QDBusInterface interface("org.kde.KWin",pa::dbusPath,pa::dbusInterface,QDBusConnection::sessionBus());
-    interface.setTimeout(5000);
-    if (!interface.isValid()) {*error="KWin 模块未加载。首次安装后请重新登录 Plasma。";return {};}
-    const QDBusReply<QString> reply=interface.callWithArgumentList(QDBus::Block,method,args);
-    if (!reply.isValid()) {*error=reply.error().message();return {};}
-    const auto doc=QJsonDocument::fromJson(reply.value().toUtf8());
-    if (!doc.isObject()) {*error="模块返回的数据无效。";return {};}
-    return doc.object();
+    return pa::ControlClient().request(method,args,error);
 }
 bool boolean(const QString &value,bool *out) {
     if (value=="on" || value=="true") {*out=true;return true;}
@@ -71,6 +65,7 @@ int internalPlugin(const QStringList &args) {
 }
 void usage() {
     output<<"PointerAccel — Windows 鼠标算法 / Plasma Wayland\n"
+      "  pointeraccel gui\n"
       "  pointeraccel enable|disable [--temporary]\n"
       "  pointeraccel status|info|doctor|devices|diagnostics [--json]\n"
       "  pointeraccel devices include|exclude ID\n"
@@ -90,6 +85,11 @@ int main(int argc,char **argv) {
     auto args=app.arguments();args.removeFirst();
     bool json=args.removeAll("--json");
     if (args.isEmpty() || args==QStringList{"--help"} || args==QStringList{"help"}) {usage();return 0;}
+    if (args==QStringList{"gui"}) {
+        const auto program=(QCoreApplication::applicationDirPath()+"/pointeraccel-gui").toLocal8Bit();
+        execl(program.constData(),program.constData(),static_cast<char *>(nullptr));
+        return fail("无法启动 GUI: "+QString::fromLocal8Bit(std::strerror(errno)));
+    }
     if (args[0]=="internal-plugin") return internalPlugin(args);
     if (args==QStringList{"internal-watch"}) return pa::watchSession();
     if (args==QStringList{"internal-startup-status"}) {print(pa::startupStatus());return 0;}
@@ -116,41 +116,8 @@ int main(int argc,char **argv) {
     const auto command=args[0];
     if (command=="info" && args.size()==1) {print(pa::buildInfo());return 0;}
     if ((command=="status" || command=="doctor") && args.size()==1) {
-        QString why;auto status=request("Status",{},&why);
-        const bool installed=QFile::exists(pa::manifestPath());
-        const auto startup=pa::startupStatus();
-        if (!why.isEmpty()) {
-            status={{"installed",installed},{"loaded",false},{"active",false},{"configured_enabled",config.enabled},
-                    {"compatible",false},{"running_compatible",false},{"healthy",false},{"state",startup["startup_state"]},
-                    {"error",startup["error"]},{"settings",pa::toJson(config)}};
-            if(startup["startup_state"]=="ready") {status["state"]="load-failed";status["error"]=why;}
-        } else {
-            if(!status.contains("running_compatible"))status["running_compatible"]=status["compatible"];
-            QString infoError;status["running_build"]=request("Info",{},&infoError);
-        }
-        status["configuration_valid"]=configError.isEmpty();
-        const bool direct=KConfig(pa::kwinConfigPath(),KConfig::SimpleConfig).group("Plugins").readEntry("pointeraccel_kwinEnabled",false);
-        status["direct_autostart_enabled"]=direct;
-        status["autostart_configured"]=!direct && QFile::exists(pa::sessionUnitPath()) && QFileInfo(pa::sessionLinkPath()).isSymLink();
-        for(const auto *key:{"startup_state","startup_compatible","repair_required","relogin_required","module_file_present","module_file_valid","installed_build","installed_kwin_version"})
-            status[key]=startup[key];
-        const auto runningBuild=status["running_build"].toObject(),installedBuild=startup["installed_build"].toObject();
-        const bool moduleMatches=status["loaded"].toBool() && !runningBuild["image_build_id"].toString().isEmpty()
-            && runningBuild["image_build_id"]==installedBuild["module_build_id"];
-        status["running_module_matches_install"]=moduleMatches;
-        if(status["loaded"].toBool() && !moduleMatches) {
-            status["relogin_required"]=true;
-            if(status["startup_state"]=="ready") {
-                status["startup_state"]="pending-login";
-                status["error"]="当前仍驻留旧模块，请重新登录以加载已安装的新模块。";
-            }
-        }
-        if(!startup["error"].toString().isEmpty())status["error"]=startup["error"];
-        if(!configError.isEmpty())status["error"]=configError;
-        const bool healthy=status["healthy"].toBool() && configError.isEmpty() && installed
-            && status["module_file_valid"].toBool() && status["autostart_configured"].toBool()
-            && status["startup_state"]=="ready" && status["running_compatible"].toBool() && moduleMatches;
-        status["healthy"]=healthy;
+        const auto status=pa::ControlClient().status();
+        const bool healthy=status["healthy"].toBool();
         if (json || command=="doctor") print(status);
         else {
             output<<"状态: "<<status["state"].toString()<<"\n配置启用: "<<(status["configured_enabled"].toBool()?"是":"否")
@@ -165,41 +132,45 @@ int main(int argc,char **argv) {
         print(pa::toJson(config));return 0;
     }
     QString method;QVariantList parameters;bool save=false;
+    std::function<void(pa::Config &)> edit;
     if ((command=="enable" || command=="disable") && (args.size()==1 || (args.size()==2 && args[1]=="--temporary"))) {
         if (!configError.isEmpty()) return fail(configError);
         const bool enabled=command=="enable";
         if (args.size()==2) {method="SetTemporaryEnabled";parameters<<enabled;}
-        else {config.enabled=enabled;save=true;}
+        else {edit=[enabled](pa::Config &c){c.enabled=enabled;};save=true;}
     } else if (command=="config" && args.size()==4 && args[1]=="set") {
         if (!configError.isEmpty()) return fail(configError);
         if (args[2]=="pointer-speed") {
             const auto speed=windows_pointer::parsePointerSpeed(args[3].toStdString());
             if (!speed) return fail("速度必须为 1/20 至 20/20。",2);
-            config.settings.pointerSpeed=*speed;
+            edit=[value=*speed](pa::Config &c){c.settings.pointerSpeed=value;};
         } else if (args[2]=="enhance-pointer-precision") {
             if (!boolean(args[3],&config.settings.enhancePointerPrecision)) return fail("请输入 on 或 off。",2);
         } else if (args[2]=="trace") {
             if (!boolean(args[3],&config.trace)) return fail("请输入 on 或 off。",2);
         } else return fail("未知配置项。",2);
+        if (args[2]=="enhance-pointer-precision") edit=[value=config.settings.enhancePointerPrecision](pa::Config &c){c.settings.enhancePointerPrecision=value;};
+        if (args[2]=="trace") edit=[value=config.trace](pa::Config &c){c.trace=value;};
         save=true;
     } else if (command=="devices" && args.size()==3 && (args[1]=="include" || args[1]=="exclude")) {
         if (!configError.isEmpty()) return fail(configError);
         if (!args[2].startsWith("mouse-") || args[2].size()!=30) return fail("请使用 devices 返回的稳定设备 ID。",2);
-        config.excluded.removeAll(args[2]);if(args[1]=="exclude")config.excluded.append(args[2]);save=true;
+        edit=[id=args[2],exclude=args[1]=="exclude"](pa::Config &c){c.excluded.removeAll(id);if(exclude)c.excluded.append(id);};save=true;
     } else if (command=="devices" && args.size()==1) method="Devices";
     else if (command=="diagnostics" && args.size()==1) method="Diagnostics";
     else if (command=="reset-state" && args.size()==1) method="ResetState";
     else {usage();return fail("无效命令或参数。",2);}
     if (save) {
-        QString why;if (!pa::writeConfig(config,&why))return fail(why);method="ApplyConfig";
+        const auto result=pa::ControlClient().update(edit);
+        if (!result.saved) return fail(result.error);
+        config=result.snapshot.config;
+        if (!result.response.isEmpty()) { print(result.response);return result.response.contains("healthy")&&!result.response["healthy"].toBool()?1:0; }
+        if(json) print({{"saved",true},{"pending_login",true},{"settings",pa::toJson(config)}});
+        else output<<"配置已保存，下次加载模块时生效。\n";
+        return 0;
     }
     QString why;auto reply=request(method,parameters,&why);
     if (!why.isEmpty()) {
-        if (save) {
-            if(json) print({{"saved",true},{"pending_login",true},{"settings",pa::toJson(config)}});
-            else output<<"配置已保存，下次加载模块时生效。\n";
-            return 0;
-        }
         return fail(why);
     }
     print(reply);

@@ -68,12 +68,9 @@ QJsonObject readJson(const QString &path, QString *error) {
     }
     return doc.object();
 }
-Config readConfig(QString *error) {
+Config parseConfig(const QJsonObject &json, QString *error) {
     Config c;
-    if (QFileInfo(configPath()).isSymLink()) {c.enabled=false;if(error)*error="配置不能是符号链接。";return c;}
-    if (!QFile::exists(configPath())) return c;
     QString why;
-    const auto json = readJson(configPath(), &why);
     if (why.isEmpty()) {
         const auto speed = json.value("pointer_speed");
         if (!json.value("enabled").isBool() || !speed.isDouble() || speed.toDouble() != speed.toInt()
@@ -94,6 +91,15 @@ Config readConfig(QString *error) {
     c.settings.enhancePointerPrecision = json["enhance_pointer_precision"].toBool();
     c.trace = json["trace"].toBool();
     return c;
+}
+Config readConfig(QString *error) {
+    Config c;
+    if (QFileInfo(configPath()).isSymLink()) { c.enabled=false; if(error)*error="配置不能是符号链接。"; return c; }
+    if (!QFile::exists(configPath())) return c;
+    QString why;
+    const auto json = readJson(configPath(), &why);
+    if (!why.isEmpty()) { c.enabled=false; if(error)*error=why; return c; }
+    return parseConfig(json, error);
 }
 bool writeJson(const QString &path, const QJsonObject &json, QString *error) {
     if (!QDir().mkpath(QFileInfo(path).absolutePath())) {

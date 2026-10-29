@@ -28,6 +28,7 @@ QString digest(const QString &path);
 bool compatible(QString *reason = nullptr);
 QJsonObject buildInfo();
 QJsonObject toJson(const Config &config);
+Config parseConfig(const QJsonObject &json, QString *error = nullptr);
 Config readConfig(QString *error = nullptr);
 bool writeConfig(const Config &config, QString *error);
 bool writeJson(const QString &path, const QJsonObject &json, QString *error = nullptr);

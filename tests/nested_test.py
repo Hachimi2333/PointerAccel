@@ -120,6 +120,16 @@ def inside(build):
             excluded=rpc("TestReports",json.dumps({"reports":reports[:2]}))
             assert excluded["observed"]==excluded["expected"]
             assert rpc("Diagnostics")["trace_samples"]==0
+            # The GUI commits through the shared controller and exits without touching module lifetime.
+            gui=subprocess.run([str(build/"pa_gui_driver")],env=client_env|{"QT_QUICK_BACKEND":"software"},
+                               stdout=log,stderr=log,timeout=20)
+            assert gui.returncode==0,f"GUI failed to apply/close: {gui.returncode}"
+            gui_status=json.loads(subprocess.check_output([str(build/"pointeraccel"),"status","--json"],env=env,text=True))
+            assert gui_status["loaded"] and gui_status["active"]
+            assert gui_status["settings"]["pointer_speed"]==15
+            assert not gui_status["settings"]["enhance_pointer_precision"]
+            after_gui=rpc("TestReports",json.dumps({"reports":reports[:2]}))
+            assert after_gui["observed"]==after_gui["expected"]
             call("/Plugins","org.kde.KWin.Plugins.UnloadPlugin","pointeraccel_kwin")
             assert compositor.poll() is None
             print("nested KWin: load, RELRO interception, per-report motion, shared mouse state, touchpad passthrough, 125% scale, disable, mismatch fallback, Wayland/XWayland raw motion, re-enable, unload: PASS")

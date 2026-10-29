@@ -74,6 +74,25 @@ with tempfile.TemporaryDirectory(prefix="pointeraccel-install-") as temporary:
     run([cli,"config","set","enhance-pointer-precision","off"])
     assert json.loads(run([cli,"config","get","--json"]))["pointer_speed"]==14
     run([cli,"config","set","pointer-speed","21/20"],2)
+    gui=home/".local/share/pointeraccel/bin/pointeraccel-gui"
+    assert gui.is_file()
+    saved_config=(home/".config/pointeraccel/config.json").read_bytes()
+    # Runtime QML/font caches are not installation-owned files.
+    with tempfile.TemporaryDirectory(prefix="pointeraccel-gui-cache-") as gui_cache:
+        process=subprocess.Popen([cli,"gui"],env=env|{"QT_QPA_PLATFORM":"offscreen","QT_QUICK_BACKEND":"software","XDG_CACHE_HOME":gui_cache},
+                                 stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+        try:
+            deadline=time.monotonic()+5
+            while time.monotonic()<deadline and process.poll() is None:
+                if Path(f"/proc/{process.pid}/exe").resolve()==gui:break
+                time.sleep(.02)
+            assert process.poll() is None,"installed GUI exited during startup"
+            assert Path(f"/proc/{process.pid}/exe").resolve()==gui,"CLI did not replace itself with the GUI"
+            time.sleep(.2)
+            assert process.poll() is None,"installed QML failed to load"
+        finally:
+            process.terminate();process.communicate(timeout=10)
+    assert (home/".config/pointeraccel/config.json").read_bytes()==saved_config
     installed=snapshot(Path(temporary))
     interrupt_and_recover(installed)
     run(install,1,{"POINTERACCEL_TEST_FAIL_AFTER_MODULE":"1"})
@@ -87,7 +106,7 @@ with tempfile.TemporaryDirectory(prefix="pointeraccel-install-") as temporary:
     # the original backup or the user's settings.
     state=home/".local/state/pointeraccel";data=home/".local/share/pointeraccel"
     backup=(state/"backups/kwin.json").read_bytes()
-    removed=[data/"source.tar.gz",data/"scripts/maintenance.py",state/"session.json",
+    removed=[data/"bin/pointeraccel-gui",data/"source.tar.gz",data/"scripts/maintenance.py",state/"session.json",
              home/".config/systemd/user/pointeraccel-session.service",
              home/".config/systemd/user/plasma-workspace.target.wants/pointeraccel-session.service"]
     manifest=state/"manifest.tsv"
@@ -97,12 +116,13 @@ with tempfile.TemporaryDirectory(prefix="pointeraccel-install-") as temporary:
     owner=system/"records/owner.tsv";owner.write_text('\t'.join(owner.read_text().strip().split('\t')[:2])+'\n')
     digest=run([cli,"internal-plugin","enable"]).strip();(state/"autostart.sha256").write_text(digest+'\n')
     run(install)
+    assert gui.is_file(),"upgrade from a CLI-only installation did not add the GUI"
     assert (state/"backups/kwin.json").read_bytes()==backup
     assert b"pointeraccel_kwinEnabled=false" in kwin.read_bytes()
     assert json.loads(run([cli,"config","get","--json"]))["pointer_speed"]==14
     run(uninstall)
     assert kwin.read_bytes()==original,"kwinrc was not restored byte-for-byte"
-    assert snapshot(Path(temporary))==before,"uninstall left owned files"
+    assert snapshot(Path(temporary))==before,("uninstall left owned files",set(snapshot(Path(temporary)))-set(before))
     run(uninstall)
     # Preserve new, unrelated KWin changes and a configuration that predates installation.
     config=home/".config/pointeraccel/config.json";config.parent.mkdir()
