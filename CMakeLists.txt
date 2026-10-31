@@ -1,9 +1,13 @@
 cmake_minimum_required(VERSION 3.25)
-project(PointerAccel VERSION 0.1.0 LANGUAGES C CXX)
+project(
+  PointerAccel
+  VERSION 0.1.0
+  LANGUAGES C CXX)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
 include(CTest)
 find_package(Python3 REQUIRED COMPONENTS Interpreter)
 find_package(Qt6 REQUIRED COMPONENTS Core DBus Gui Widgets Quick QuickControls2)
@@ -22,37 +26,53 @@ file(REAL_PATH "${PA_KWIN_LIBRARY}" PA_KWIN_LIBRARY)
 file(SHA256 "${PA_KWIN_LIBRARY}" PA_KWIN_SHA256)
 set(PA_KWIN_EXECUTABLE /usr/bin/kwin_wayland)
 file(SHA256 "${PA_KWIN_EXECUTABLE}" PA_EXECUTABLE_SHA256)
+
 foreach(PA_IMAGE KWIN EXECUTABLE)
   if(PA_IMAGE STREQUAL "KWIN")
     set(PA_IMAGE_PATH "${PA_KWIN_LIBRARY}")
   else()
     set(PA_IMAGE_PATH "${PA_KWIN_EXECUTABLE}")
   endif()
-  execute_process(COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/scripts/maintenance.py" elf-id "${PA_IMAGE_PATH}"
-    OUTPUT_VARIABLE PA_${PA_IMAGE}_BUILD_ID OUTPUT_STRIP_TRAILING_WHITESPACE COMMAND_ERROR_IS_FATAL ANY)
+  execute_process(
+    COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/scripts/maintenance.py" elf-id "${PA_IMAGE_PATH}"
+    OUTPUT_VARIABLE PA_${PA_IMAGE}_BUILD_ID
+    OUTPUT_STRIP_TRAILING_WHITESPACE COMMAND_ERROR_IS_FATAL ANY)
 endforeach()
+
 configure_file(src/build_info.hpp.in generated/build_info.hpp @ONLY)
+
 add_compile_options(-Wall -Wextra -Wpedantic)
+
 add_library(windows_pointer_engine STATIC src/windows_pointer/engine.cpp)
 add_library(windows_pointer::engine ALIAS windows_pointer_engine)
 target_include_directories(windows_pointer_engine PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
 target_compile_features(windows_pointer_engine PUBLIC cxx_std_23)
+
 add_library(pa_common STATIC src/common.cpp src/compatibility.cpp)
 target_include_directories(pa_common PUBLIC src "${CMAKE_CURRENT_BINARY_DIR}/generated")
 target_link_libraries(pa_common PUBLIC Qt6::Core windows_pointer::engine ${CMAKE_DL_LIBS})
+
 add_library(pa_capture STATIC src/capture.cpp src/import_hooks.cpp)
 target_include_directories(pa_capture PUBLIC src)
 target_link_libraries(pa_capture PUBLIC Qt6::Core PkgConfig::LIBINPUT ${CMAKE_DL_LIBS})
+
 add_library(pointeraccel_kwin MODULE src/kwin_plugin.cpp)
-target_link_libraries(pointeraccel_kwin PRIVATE pa_common pa_capture KWin::kwin Qt6::DBus PkgConfig::UDEV ${CMAKE_DL_LIBS})
-set_target_properties(pointeraccel_kwin PROPERTIES PREFIX "" LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/stage/qt6/plugins/kwin/plugins")
+target_link_libraries(pointeraccel_kwin PRIVATE pa_common pa_capture KWin::kwin Qt6::DBus PkgConfig::UDEV
+                                                ${CMAKE_DL_LIBS})
+set_target_properties(
+  pointeraccel_kwin PROPERTIES PREFIX "" LIBRARY_OUTPUT_DIRECTORY
+                                         "${CMAKE_CURRENT_BINARY_DIR}/stage/qt6/plugins/kwin/plugins")
+
 add_library(pa_control STATIC src/control.cpp src/session.cpp)
 target_link_libraries(pa_control PUBLIC pa_common Qt6::DBus KF6::ConfigCore)
+
 add_executable(pointeraccel src/cli.cpp)
 target_link_libraries(pointeraccel PRIVATE pa_control)
+
 add_library(pa_gui STATIC src/gui/controller.cpp)
 target_include_directories(pa_gui PUBLIC src/gui)
 target_link_libraries(pa_gui PUBLIC pa_control Qt6::Gui)
+
 add_executable(pointeraccel-gui src/gui/main.cpp src/gui/qml.qrc)
 set_target_properties(pointeraccel-gui PROPERTIES AUTORCC ON)
 target_link_libraries(pointeraccel-gui PRIVATE pa_gui Qt6::Widgets Qt6::Quick Qt6::QuickControls2)
@@ -66,78 +86,118 @@ foreach(PROTOCOL xdg-shell relative-pointer)
   else()
     set(XML "${WAYLAND_PROTOCOLS_DIR}/unstable/relative-pointer/relative-pointer-unstable-v1.xml")
   endif()
-  add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/generated/${PROTOCOL}-client-protocol.h"
-    COMMAND ${WAYLAND_SCANNER} client-header "${XML}" "${CMAKE_CURRENT_BINARY_DIR}/generated/${PROTOCOL}-client-protocol.h" DEPENDS "${XML}")
-  add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/generated/${PROTOCOL}-protocol.c"
-    COMMAND ${WAYLAND_SCANNER} private-code "${XML}" "${CMAKE_CURRENT_BINARY_DIR}/generated/${PROTOCOL}-protocol.c" DEPENDS "${XML}")
+  add_custom_command(
+    OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/generated/${PROTOCOL}-client-protocol.h"
+    COMMAND ${WAYLAND_SCANNER} client-header "${XML}"
+            "${CMAKE_CURRENT_BINARY_DIR}/generated/${PROTOCOL}-client-protocol.h"
+    DEPENDS "${XML}")
+  add_custom_command(
+    OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/generated/${PROTOCOL}-protocol.c"
+    COMMAND ${WAYLAND_SCANNER} private-code "${XML}" "${CMAKE_CURRENT_BINARY_DIR}/generated/${PROTOCOL}-protocol.c"
+    DEPENDS "${XML}")
 endforeach()
-add_executable(pointeraccel-raw-wayland tools/raw_wayland.c
-  "${CMAKE_CURRENT_BINARY_DIR}/generated/xdg-shell-client-protocol.h" "${CMAKE_CURRENT_BINARY_DIR}/generated/xdg-shell-protocol.c"
-  "${CMAKE_CURRENT_BINARY_DIR}/generated/relative-pointer-client-protocol.h" "${CMAKE_CURRENT_BINARY_DIR}/generated/relative-pointer-protocol.c")
+
+add_executable(
+  pointeraccel-raw-wayland
+  tools/raw_wayland.c
+  "${CMAKE_CURRENT_BINARY_DIR}/generated/xdg-shell-client-protocol.h"
+  "${CMAKE_CURRENT_BINARY_DIR}/generated/xdg-shell-protocol.c"
+  "${CMAKE_CURRENT_BINARY_DIR}/generated/relative-pointer-client-protocol.h"
+  "${CMAKE_CURRENT_BINARY_DIR}/generated/relative-pointer-protocol.c")
 target_include_directories(pointeraccel-raw-wayland PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/generated")
 target_link_libraries(pointeraccel-raw-wayland PRIVATE PkgConfig::WAYLAND_CLIENT)
+
 add_executable(pointeraccel-raw-x11 tools/raw_x11.cpp)
 target_link_libraries(pointeraccel-raw-x11 PRIVATE PkgConfig::XINPUT)
+
 if(BUILD_TESTING)
+
   add_library(pa_control_test_support STATIC src/control.cpp src/session.cpp)
   target_compile_definitions(pa_control_test_support PRIVATE PA_TESTING)
   target_link_libraries(pa_control_test_support PUBLIC pa_common Qt6::DBus KF6::ConfigCore)
+
   add_executable(pointeraccel-test src/cli.cpp)
   target_link_libraries(pointeraccel-test PRIVATE pa_control_test_support)
   find_package(Qt6 REQUIRED COMPONENTS Test)
+
   add_executable(pa_control_peer tests/control_peer.cpp)
   target_link_libraries(pa_control_peer PRIVATE pa_control)
+
   add_executable(pa_gui_test tests/gui_test.cpp src/gui/qml.qrc)
   set_target_properties(pa_gui_test PROPERTIES AUTORCC ON)
   target_link_libraries(pa_gui_test PRIVATE pa_gui Qt6::Widgets Qt6::Quick Qt6::QuickControls2 Qt6::Test)
   add_dependencies(pa_gui_test pa_control_peer)
   add_test(NAME gui_control COMMAND dbus-run-session -- $<TARGET_FILE:pa_gui_test>)
-  set_tests_properties(gui_control PROPERTIES TIMEOUT 90 ENVIRONMENT "QT_QPA_PLATFORM=offscreen;QT_QUICK_BACKEND=software;QT_QUICK_CONTROLS_STYLE=Fusion")
+  set_tests_properties(
+    gui_control PROPERTIES TIMEOUT 90 ENVIRONMENT
+                           "QT_QPA_PLATFORM=offscreen;QT_QUICK_BACKEND=software;QT_QUICK_CONTROLS_STYLE=Fusion")
   foreach(PA_SCALE 1.25 2)
     add_test(NAME gui_scale_${PA_SCALE} COMMAND dbus-run-session -- $<TARGET_FILE:pa_gui_test> qmlFlow)
-    set_tests_properties(gui_scale_${PA_SCALE} PROPERTIES TIMEOUT 40 ENVIRONMENT "QT_QPA_PLATFORM=offscreen;QT_QUICK_BACKEND=software;QT_QUICK_CONTROLS_STYLE=Fusion;QT_SCALE_FACTOR=${PA_SCALE}")
+    set_tests_properties(
+      gui_scale_${PA_SCALE}
+      PROPERTIES
+        TIMEOUT 40 ENVIRONMENT
+        "QT_QPA_PLATFORM=offscreen;QT_QUICK_BACKEND=software;QT_QUICK_CONTROLS_STYLE=Fusion;QT_SCALE_FACTOR=${PA_SCALE}"
+    )
   endforeach()
+
   add_executable(pa_gui_driver tests/gui_driver.cpp src/gui/qml.qrc)
   set_target_properties(pa_gui_driver PROPERTIES AUTORCC ON)
   target_link_libraries(pa_gui_driver PRIVATE pa_gui Qt6::Widgets Qt6::Quick Qt6::QuickControls2)
   find_package(GTest REQUIRED)
+
   add_executable(pa_core_test tests/core_test.cpp)
   target_link_libraries(pa_core_test PRIVATE pa_common GTest::gtest_main)
   include(GoogleTest)
   gtest_discover_tests(pa_core_test)
-  add_executable(windows_pointer_engine_test
-    tests/windows_pointer/engine_test.cpp
-    tests/windows_pointer/model_test.cpp
-    tests/windows_pointer/scenario_test.cpp)
+
+  add_executable(windows_pointer_engine_test tests/windows_pointer/engine_test.cpp tests/windows_pointer/model_test.cpp
+                                             tests/windows_pointer/scenario_test.cpp)
   target_link_libraries(windows_pointer_engine_test PRIVATE windows_pointer::engine GTest::gtest_main)
   gtest_discover_tests(windows_pointer_engine_test)
+
   add_library(pa_fake_libinput SHARED tests/fake_libinput.cpp)
+
   add_library(pa_fake_consumer SHARED tests/fake_consumer.cpp)
   target_link_libraries(pa_fake_consumer PRIVATE pa_fake_libinput)
   target_link_options(pa_fake_consumer PRIVATE -Wl,-z,relro,-z,now)
+
   add_executable(pa_capture_test tests/capture_test.cpp)
   target_include_directories(pa_capture_test PRIVATE src)
   target_link_libraries(pa_capture_test PRIVATE pa_capture pa_fake_consumer pa_fake_libinput)
   add_test(NAME capture_import_hooks COMMAND pa_capture_test)
+
   add_library(pa_capture_test_support STATIC src/capture.cpp src/import_hooks.cpp)
   target_include_directories(pa_capture_test_support PUBLIC src)
   target_compile_definitions(pa_capture_test_support PUBLIC PA_TESTING)
   target_link_libraries(pa_capture_test_support PUBLIC Qt6::Core PkgConfig::LIBINPUT ${CMAKE_DL_LIBS})
+
   add_library(pointeraccel_kwin_test MODULE src/kwin_plugin.cpp)
   target_include_directories(pointeraccel_kwin_test PRIVATE tests)
-  target_link_libraries(pointeraccel_kwin_test PRIVATE pa_common pa_capture_test_support KWin::kwin Qt6::DBus PkgConfig::UDEV)
-  set_target_properties(pointeraccel_kwin_test PROPERTIES PREFIX "" OUTPUT_NAME pointeraccel_kwin
-    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/teststage/qt6/plugins/kwin/plugins")
+  target_link_libraries(pointeraccel_kwin_test PRIVATE pa_common pa_capture_test_support KWin::kwin Qt6::DBus
+                                                       PkgConfig::UDEV)
+  set_target_properties(
+    pointeraccel_kwin_test
+    PROPERTIES PREFIX ""
+               OUTPUT_NAME pointeraccel_kwin
+               LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/teststage/qt6/plugins/kwin/plugins")
+
   add_library(pointeraccel_kwin_mismatch MODULE src/kwin_plugin.cpp)
   target_compile_definitions(pointeraccel_kwin_mismatch PRIVATE PA_TEST_RUNTIME_MISMATCH)
   target_link_libraries(pointeraccel_kwin_mismatch PRIVATE pa_common pa_capture KWin::kwin Qt6::DBus PkgConfig::UDEV)
-  set_target_properties(pointeraccel_kwin_mismatch PROPERTIES PREFIX "" OUTPUT_NAME pointeraccel_kwin
-    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/mismatchstage/qt6/plugins/kwin/plugins")
+  set_target_properties(
+    pointeraccel_kwin_mismatch
+    PROPERTIES PREFIX ""
+               OUTPUT_NAME pointeraccel_kwin
+               LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/mismatchstage/qt6/plugins/kwin/plugins")
   find_package(Python3 REQUIRED COMPONENTS Interpreter)
-  add_test(NAME nested_kwin COMMAND Python3::Interpreter "${CMAKE_CURRENT_SOURCE_DIR}/tests/nested_test.py" "${CMAKE_CURRENT_BINARY_DIR}")
+  add_test(NAME nested_kwin COMMAND Python3::Interpreter "${CMAKE_CURRENT_SOURCE_DIR}/tests/nested_test.py"
+                                    "${CMAKE_CURRENT_BINARY_DIR}")
   set_tests_properties(nested_kwin PROPERTIES TIMEOUT 45)
-  add_test(NAME install_roundtrip COMMAND Python3::Interpreter "${CMAKE_CURRENT_SOURCE_DIR}/tests/install_test.py" "${CMAKE_CURRENT_BINARY_DIR}")
+  add_test(NAME install_roundtrip COMMAND Python3::Interpreter "${CMAKE_CURRENT_SOURCE_DIR}/tests/install_test.py"
+                                          "${CMAKE_CURRENT_BINARY_DIR}")
   set_tests_properties(install_roundtrip PROPERTIES TIMEOUT 60)
-  add_test(NAME upgrade_guard COMMAND Python3::Interpreter "${CMAKE_CURRENT_SOURCE_DIR}/tests/upgrade_test.py" "${CMAKE_CURRENT_BINARY_DIR}")
+  add_test(NAME upgrade_guard COMMAND Python3::Interpreter "${CMAKE_CURRENT_SOURCE_DIR}/tests/upgrade_test.py"
+                                      "${CMAKE_CURRENT_BINARY_DIR}")
   set_tests_properties(upgrade_guard PROPERTIES TIMEOUT 90)
 endif()

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Data-only compatibility records and source snapshots; never imports user code."""
+
 import fcntl
 import gzip
 import hashlib
@@ -16,12 +17,25 @@ import tarfile
 
 EXECUTABLE = Path('/usr/bin/kwin_wayland')
 LIBRARY = Path('/usr/lib64/libkwin.so.6')
-SOURCE_ITEMS = ('CMakeLists.txt', 'README.md', 'LICENSE', 'LICENSES', 'include',
-                'src', 'scripts', 'tests', 'tools', 'install.sh', 'uninstall.sh')
+SOURCE_ITEMS = (
+    'CMakeLists.txt',
+    'README.md',
+    'LICENSE',
+    'LICENSES',
+    'include',
+    'src',
+    'scripts',
+    'tests',
+    'tools',
+    'install.sh',
+    'uninstall.sh',
+)
+
 
 def digest(path):
     with open(path, 'rb') as stream:
         return hashlib.file_digest(stream, 'sha256').hexdigest()
+
 
 def elf_id(path):
     data = Path(path).read_bytes()
@@ -42,17 +56,22 @@ def elf_id(path):
             name_size, desc_size = (names + 3) & ~3, (desc + 3) & ~3
             if start + name_size + desc_size > end:
                 break
-            if note == 3 and data[start:start + names] == b'GNU\0':
-                return data[start + name_size:start + name_size + desc].hex()
+            if note == 3 and data[start : start + names] == b'GNU\0':
+                return data[start + name_size : start + name_size + desc].hex()
             start += name_size + desc_size
     raise ValueError(f'ELF 缺少 GNU Build ID: {path}')
+
 
 def fingerprint():
     packages = {}
     versions = {}
     for package in ('kwin', 'kwin-libs', 'kwin-devel'):
-        result = subprocess.run(['rpm', '-q', '--qf', '%{VERSION}\t%{EPOCHNUM}:%{VERSION}-%{RELEASE}.%{ARCH}', package],
-                                text=True, capture_output=True, check=True)
+        result = subprocess.run(
+            ['rpm', '-q', '--qf', '%{VERSION}\t%{EPOCHNUM}:%{VERSION}-%{RELEASE}.%{ARCH}', package],
+            text=True,
+            capture_output=True,
+            check=True,
+        )
         versions[package], packages[package] = result.stdout.strip().split('\t')
     version = versions['kwin']
     if not re.fullmatch(r'6\.7\.\d+', version):
@@ -60,10 +79,17 @@ def fingerprint():
     if len(set(packages.values())) != 1:
         raise ValueError('kwin、kwin-libs 和 kwin-devel 版本/发行号不匹配，请先完成系统更新。')
     library = LIBRARY.resolve(strict=True)
-    return {'kwin_version': version, 'kwin_library': str(library),
-            'kwin_executable': str(EXECUTABLE), 'kwin_sha256': digest(library),
-            'executable_sha256': digest(EXECUTABLE), 'kwin_build_id': elf_id(library),
-            'executable_build_id': elf_id(EXECUTABLE), 'packages': packages}
+    return {
+        'kwin_version': version,
+        'kwin_library': str(library),
+        'kwin_executable': str(EXECUTABLE),
+        'kwin_sha256': digest(library),
+        'executable_sha256': digest(EXECUTABLE),
+        'kwin_build_id': elf_id(library),
+        'executable_build_id': elf_id(EXECUTABLE),
+        'packages': packages,
+    }
+
 
 def verify(record):
     current = fingerprint()
@@ -71,13 +97,17 @@ def verify(record):
         if record.get(key) != value:
             raise ValueError(f'构建期间 KWin 已变化或清单不匹配 ({key})，已停止；请重新运行修复。')
 
+
 def write(path, record):
     Path(path).write_text(json.dumps(record, indent=2, ensure_ascii=False) + '\n')
+
 
 def snapshot(source, destination):
     source = Path(source).resolve(strict=True)
     # Fixed allowlist, normalized tar metadata, no links, caches or build output.
-    with open(destination, 'wb') as output, gzip.GzipFile(filename='', mode='wb', fileobj=output, mtime=0) as compressed, tarfile.open(fileobj=compressed, mode='w') as archive:
+    with open(destination, 'wb') as output, gzip.GzipFile(
+        filename='', mode='wb', fileobj=output, mtime=0
+    ) as compressed, tarfile.open(fileobj=compressed, mode='w') as archive:
         paths = []
         for item in SOURCE_ITEMS:
             path = source / item
@@ -98,32 +128,46 @@ def snapshot(source, destination):
             else:
                 archive.addfile(info)
 
+
 def extract(source, destination):
     root = Path(destination).resolve(strict=True)
     with tarfile.open(source) as archive:
         for member in archive.getmembers():
             path = root / member.name
-            if (Path(member.name).is_absolute() or '..' in Path(member.name).parts
-                or not (member.isfile() or member.isdir()) or not path.resolve().is_relative_to(root)):
+            if (
+                Path(member.name).is_absolute()
+                or '..' in Path(member.name).parts
+                or not (member.isfile() or member.isdir())
+                or not path.resolve().is_relative_to(root)
+            ):
                 raise ValueError('源码快照包含无效路径或特殊文件。')
         archive.extractall(root, filter='data')
 
+
 def lock_path():
-    state = str(Path(os.environ.get('XDG_STATE_HOME', str(Path.home()/'.local/state'))) / 'pointeraccel')
+    state = str(Path(os.environ.get('XDG_STATE_HOME', str(Path.home() / '.local/state'))) / 'pointeraccel')
     return f'/tmp/pointeraccel-{os.getuid()}-{hashlib.sha256(state.encode()).hexdigest()}.lock'
+
 
 def user_paths():
     home = Path.home()
-    config = Path(os.environ.get('XDG_CONFIG_HOME', home/'.config'))
-    data = Path(os.environ.get('XDG_DATA_HOME', home/'.local/share'))/'pointeraccel'
-    state = Path(os.environ.get('XDG_STATE_HOME', home/'.local/state'))/'pointeraccel'
-    return {'data': str(data), 'config': str(config/'pointeraccel'), 'state': str(state),
-            'cli': str(home/'.local/bin/pointeraccel'), 'kwin': str(config/'kwinrc'),
-            'unit': str(config/'systemd/user/pointeraccel-session.service'),
-            'unit-link': str(config/'systemd/user/plasma-workspace.target.wants/pointeraccel-session.service')}
+    config = Path(os.environ.get('XDG_CONFIG_HOME', home / '.config'))
+    data = Path(os.environ.get('XDG_DATA_HOME', home / '.local/share')) / 'pointeraccel'
+    state = Path(os.environ.get('XDG_STATE_HOME', home / '.local/state')) / 'pointeraccel'
+    return {
+        'data': str(data),
+        'config': str(config / 'pointeraccel'),
+        'state': str(state),
+        'cli': str(home / '.local/bin/pointeraccel'),
+        'kwin': str(config / 'kwinrc'),
+        'unit': str(config / 'systemd/user/pointeraccel-session.service'),
+        'unit-link': str(config / 'systemd/user/plasma-workspace.target.wants/pointeraccel-session.service'),
+    }
+
 
 def journal_path():
-    return Path(user_paths()['state']+'.transaction.json')
+    return Path(user_paths()['state'] + '.transaction.json')
+
 
 def load_journal():
     path = journal_path()
@@ -131,11 +175,17 @@ def load_journal():
         raise ValueError('安装事务日志的所有者或类型无效。')
     record = json.loads(path.read_text())
     backup = Path(record['backup'])
-    if (record['paths'] != user_paths() or backup.is_symlink() or not backup.is_dir()
-        or backup.stat().st_uid != os.getuid() or backup.parent != Path(user_paths()['state']).parent
-        or not backup.name.startswith('pointeraccel.backup.')):
+    if (
+        record['paths'] != user_paths()
+        or backup.is_symlink()
+        or not backup.is_dir()
+        or backup.stat().st_uid != os.getuid()
+        or backup.parent != Path(user_paths()['state']).parent
+        or not backup.name.startswith('pointeraccel.backup.')
+    ):
         raise ValueError('安装事务日志或备份路径无效。')
     return record
+
 
 def recover_user(action):
     record = load_journal()
@@ -147,7 +197,7 @@ def recover_user(action):
                 destination.unlink()
             elif destination.exists():
                 shutil.rmtree(destination)
-            saved = backup/name
+            saved = backup / name
             if saved.is_symlink():
                 destination.parent.mkdir(parents=True, exist_ok=True)
                 destination.symlink_to(os.readlink(saved))
@@ -166,8 +216,11 @@ def recover_user(action):
             path = Path(value)
             if path == Path('/') or path == Path.home():
                 raise ValueError('事务目录超出允许范围。')
-            try: path.rmdir()
-            except OSError: pass
+            try:
+                path.rmdir()
+            except OSError:
+                pass
+
 
 def locked(arguments):
     state = user_paths()['state']
@@ -180,6 +233,7 @@ def locked(arguments):
     # Keep the descriptor open in this supervisor until every child exits.
     result = subprocess.run(arguments, env=os.environ | {'POINTERACCEL_MAINTENANCE_LOCKED': state})
     return result.returncode
+
 
 def main(args):
     command, *args = args
@@ -201,12 +255,17 @@ def main(args):
         write(output, record)
     elif command == 'validate':
         record = json.loads(Path(args[0]).read_text())
-        if (record.get('schema') != 1 or record.get('owner') != int(args[1])
+        if (
+            record.get('schema') != 1
+            or record.get('owner') != int(args[1])
             or record.get('kwin_iid') != 'org.kde.kwin.PluginFactoryInterface' + record.get('kwin_version', '')
-            or not re.fullmatch('[a-f0-9]{64}', record.get('module_sha256', ''))):
+            or not re.fullmatch('[a-f0-9]{64}', record.get('module_sha256', ''))
+        ):
             raise ValueError('系统兼容清单无效。')
         verify(record)
-        if len(args) > 2 and (digest(args[2]) != record['module_sha256'] or elf_id(args[2]) != record['module_build_id']):
+        if len(args) > 2 and (
+            digest(args[2]) != record['module_sha256'] or elf_id(args[2]) != record['module_build_id']
+        ):
             raise ValueError('模块与兼容清单不匹配。')
     elif command == 'snapshot':
         snapshot(*args)
@@ -223,8 +282,16 @@ def main(args):
         after = f'{os.getuid()}\t{manifest["module_sha256"]}\t{digest(compatibility)}\n'
         with open(journal_path(), 'x') as stream:
             os.chmod(journal_path(), 0o600)
-            json.dump({'backup': backup, 'paths': user_paths(), 'new_dirs': directories,
-                       'system_before': before, 'system_after': after}, stream)
+            json.dump(
+                {
+                    'backup': backup,
+                    'paths': user_paths(),
+                    'new_dirs': directories,
+                    'system_before': before,
+                    'system_after': after,
+                },
+                stream,
+            )
             stream.flush()
             os.fsync(stream.fileno())
     elif command == 'journal-action':
@@ -240,18 +307,27 @@ def main(args):
         recover_user(args[0])
     elif command == 'unit':
         output, executable, config, data, state = args
+
         def quote(text, command=False):
             text = text.replace('\\', '\\\\').replace('"', '\\"').replace('%', '%%')
             return '"' + (text.replace('$', '$$') if command else text) + '"'
-        Path(output).write_text('[Unit]\nDescription=PointerAccel compatibility check and session loader\n'
-                               'After=plasma-kwin_wayland.service\nPartOf=graphical-session.target\n'
-                               '[Service]\nType=simple\nExecStart=' + quote(executable, command=True) + ' internal-watch\n'
-                               + '\n'.join('Environment=' + quote(key + '=' + value) for key, value in
-                                           [('XDG_CONFIG_HOME', config), ('XDG_DATA_HOME', data), ('XDG_STATE_HOME', state)])
-                               + '\nRestart=on-failure\nRestartSec=10\n[Install]\nWantedBy=plasma-workspace.target\n')
+
+        Path(output).write_text(
+            '[Unit]\nDescription=PointerAccel compatibility check and session loader\n'
+            'After=plasma-kwin_wayland.service\nPartOf=graphical-session.target\n'
+            '[Service]\nType=simple\nExecStart='
+            + quote(executable, command=True)
+            + ' internal-watch\n'
+            + '\n'.join(
+                'Environment=' + quote(key + '=' + value)
+                for key, value in [('XDG_CONFIG_HOME', config), ('XDG_DATA_HOME', data), ('XDG_STATE_HOME', state)]
+            )
+            + '\nRestart=on-failure\nRestartSec=10\n[Install]\nWantedBy=plasma-workspace.target\n'
+        )
     else:
         raise ValueError(f'未知维护操作: {command}')
     return 0
+
 
 if __name__ == '__main__':
     try:

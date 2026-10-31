@@ -1,0 +1,48 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = tab
+indent_size = 4
+tab_width = 4
+max_line_length = 120
+
+[{*.c,*.cpp,*.h,*.hpp,*.hpp.in}]
+cpp_indent_namespace_contents = false
+cpp_indent_access_specifiers = false
+cpp_new_line_before_open_brace_namespace = new_line
+cpp_new_line_before_open_brace_type = new_line
+cpp_new_line_before_open_brace_function = new_line
+cpp_new_line_before_open_brace_block = new_line
+cpp_new_line_before_open_brace_lambda = new_line
+cpp_new_line_scope_braces_on_separate_lines = true
+cpp_new_line_close_brace_same_line_empty_type = false
+cpp_new_line_close_brace_same_line_empty_function = false
+cpp_new_line_before_else = true
+cpp_new_line_before_catch = true
+cpp_space_around_binary_operator = insert
+cpp_space_around_assignment_operator = insert
+cpp_space_pointer_reference_alignment = left
+cpp_space_after_comma = true
+cpp_space_preserve_in_initializer_list = false
+cpp_wrap_preserve_blocks = never
+
+[*.py]
+indent_style = space
+indent_size = 4
+
+[{CMakeLists.txt,*.cmake}]
+indent_style = space
+indent_size = 2
+
+[*.sh]
+shell_variant = bash
+
+[*.md]
+indent_style = space
+indent_size = 2
+trim_trailing_whitespace = false
+max_line_length = off

@@ -1,9 +1,9 @@
 {
-  "KPlugin": {
-    "Name": "PointerAccel",
-    "Description": "Windows pointer motion with unchanged application raw motion",
-    "Version": "0.1.0",
-    "EnabledByDefault": false,
-    "License": "MIT"
-  }
+	"KPlugin": {
+		"Name": "PointerAccel",
+		"Description": "Windows pointer motion with unchanged application raw motion",
+		"Version": "0.1.0",
+		"EnabledByDefault": false,
+		"License": "MIT"
+	}
 }
