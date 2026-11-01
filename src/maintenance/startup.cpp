@@ -75,8 +75,10 @@ QJsonObject startupStatus()
 	status["installed_kwin_version"] = version;
 	if (version.isEmpty())
 		return stop("blocked", "无法确认已安装的 KWin 版本。");
-	if (!QRegularExpression("^6\\.7\\.\\d+$").match(version).hasMatch())
-		return stop("unsupported", "KWin " + version + " 尚未适配，需要代码审查；重新编译不能解决。", true);
+	if (!QRegularExpression("^6\\.(7|8)\\.\\d+$").match(version).hasMatch())
+		return stop("unsupported",
+		    "KWin " + version + " 尚未适配；支持系列为 6.7、6.8，需要代码审查；重新编译不能解决。",
+		    true);
 	if (record["kwin_library"].toString() != QFileInfo("/usr/lib64/libkwin.so.6").canonicalFilePath() ||
 	    record["kwin_executable"].toString() != "/usr/bin/kwin_wayland" ||
 	    version != record["kwin_version"].toString() ||

@@ -16,7 +16,7 @@
   <a href="#许可证">许可证</a>
 </p>
 
-PointerAccel 将 [windows-pointer-linux](https://github.com/junaga/windows-pointer-linux) 的 Windows 11 指针引擎带到 **Fedora x86-64 / KDE Plasma 6.7 / Wayland**，提供原生 KWin 模块、Qt Widgets 控制面板和命令行工具。
+PointerAccel 将 [windows-pointer-linux](https://github.com/junaga/windows-pointer-linux) 的 Windows 11 指针引擎带到 **Fedora x86-64 / KDE Plasma 6.7–6.8 / Wayland**，提供原生 KWin 模块、Qt Widgets 控制面板和命令行工具。
 
 ## 功能
 
@@ -32,21 +32,21 @@ PointerAccel 将 [windows-pointer-linux](https://github.com/junaga/windows-point
 | --- | --- |
 | 平台 | Fedora，x86-64 |
 | 桌面会话 | KDE Plasma / Wayland |
-| KWin | 6.7 系列，运行包与开发包须为相同构建 |
-| 已验证环境 | Fedora 44、KWin 6.7.5、Qt 6.11.2 |
+| KWin | 6.7 和 6.8 系列，运行包与开发包须为相同构建 |
+| 已验证环境 | Fedora 44、KWin 6.8.2、Qt 6.11.2 |
 
-模块使用 KWin 内部接口，绑定具体的 KWin 构建。KWin 6.8 及以后尚未适配；KWin 软件包更新，包括同版本重新打包，都可能需要重新编译模块。
+模块使用 KWin 内部接口，绑定具体的 KWin 构建。KWin 6.9 及以后尚未适配；KWin 软件包更新，包括同版本重新打包，都可能需要重新编译模块。6.7 的支持沿用此前 6.7.5 的验证记录，本次适配在 6.8.2 上验证。
 
 ## 安装
 
 ### 1. 安装依赖
 
-以下为已验证的 Fedora 44 / KWin 6.7.5 环境使用的依赖：
+以下为已验证的 Fedora 44 / KWin 6.8.2 环境所需的依赖：
 
 ```bash
 sudo dnf install \
   gcc-c++ cmake ninja-build extra-cmake-modules pkgconf-pkg-config \
-  kwin-devel-6.7.5-1.fc44 \
+  kwin-devel \
   qt6-qtbase-devel \
   kf6-kcoreaddons-devel kf6-kconfig-devel kf6-kwindowsystem-devel \
   wayland-devel wayland-protocols-devel libinput-devel systemd-devel \
@@ -112,6 +112,8 @@ pointeraccel repair
 ```
 
 修复使用安装时保存的源码快照重新构建并测试模块，完成后注销并重新登录。安装当前项目源码的改动时，再次运行 `./install.sh`。
+
+从仅支持 6.7 的旧插件首次升级到 KWin 6.8 时，请在更新后的项目目录运行 `./install.sh`。旧安装保存的源码快照不包含此次适配；安装也会更新后续修复使用的快照。
 
 如果安装意外中断，在源码目录执行 `./install.sh --recover`，恢复完成后再运行 `./install.sh`。
 

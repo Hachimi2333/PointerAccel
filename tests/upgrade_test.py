@@ -264,14 +264,24 @@ def inside():
             assert not loaded()
             manifest.write_bytes(original_manifest)
 
-            # Unsupported series never issues a load request.
+            # Supported but different builds need repair; other series remain unsupported.
+            # Neither case may issue a load request.
             stop(watcher)
             watcher = None
             fake_bin = root / 'bin'
             fake_bin.mkdir()
             fake_rpm = fake_bin / 'rpm'
             unsupported_env = env | {'PATH': str(fake_bin) + ':' + env['PATH']}
-            for version, expected in [('6.7.6', 'repair-required'), ('6.8.0', 'unsupported')]:
+            installed_version = json.loads(saved_record)['kwin_version']
+            repair_versions = [
+                f'{series}.{int(installed_version.split(".")[-1]) + 1}' for series in ('6.7', '6.8')
+            ]
+            for version, expected in [
+                *((version, 'repair-required') for version in repair_versions),
+                ('6.6.9', 'unsupported'),
+                ('6.9.0', 'unsupported'),
+                ('7.0.0', 'unsupported'),
+            ]:
                 fake_rpm.write_text(f'#!/bin/sh\nprintf {version}\n')
                 fake_rpm.chmod(0o755)
                 assert (
@@ -354,7 +364,7 @@ def inside():
 import subprocess, sys
 result=subprocess.check_output([{rpm!r}]+sys.argv[1:]).decode()
 if __import__('pathlib').Path({str(marker)!r}).exists():
-    result=result.replace('-1.fc44', '-2.fc44')
+    result=result.replace('-', '-pointeraccel-test.', 1)
 print(result,end='')
 ''')
                     fake_rpm.chmod(0o755)

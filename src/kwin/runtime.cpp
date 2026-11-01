@@ -30,7 +30,7 @@ public:
 	{
 		if (!pending || event->warp || !event->delta.isNull() || event->deltaUnaccelerated.isNull())
 			return false;
-		// KWin 6.7 skips relativePointerMotion when the accelerated delta is zero.
+		// KWin 6.7/6.8 skips relativePointerMotion when the accelerated delta is zero.
 		// Integer Windows motion can legitimately be zero with nonzero raw counts.
 		// This filter sits immediately before Forward, after lock/drag/effect filters.
 		auto* seat = KWin::waylandServer()->seat();

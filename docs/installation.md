@@ -12,7 +12,7 @@
 
 ## KWin 升级与修复
 
-模块二进制绑定具体 KWin 构建：版本 IID、库与可执行文件的 SHA-256 都必须匹配。同为 6.7.5 的发行版重打包也可能需要重新编译。升级后运行：
+模块二进制绑定具体 KWin 构建：版本 IID、库与可执行文件的 SHA-256 都必须匹配。同一版本的发行版重打包也可能需要重新编译。升级后运行：
 
 ```bash
 pointeraccel status --json
@@ -27,20 +27,22 @@ pointeraccel repair --source /path/to/PointerAccel
 
 修复成功后手动注销并重新登录。程序不会把新模块热加载到当前 KWin，也不会自动重启桌面。从旧版直接自启布局升级时，在源码目录运行 `./install.sh` 迁移到检查服务。
 
+从仅支持 KWin 6.7 的旧版本升级到 6.8 时，应先在更新后的项目目录运行 `./install.sh`。旧安装的默认修复使用旧源码快照，无法获得新增的 6.8 适配；安装更新后的版本会同时更新 CLI、检查服务程序和修复快照，并保留用户设置。
+
 | 状态字段/值 | 含义 |
 | --- | --- |
 | `running_compatible` | 当前 KWin 与已加载模块是否匹配 |
 | `startup_compatible` | 磁盘上的 KWin 与安装模块是否匹配 |
 | `startup_state: ready` | 当前登录允许检查服务加载模块 |
 | `startup_state: pending-login` | 安装/修复已完成或运行版本落后，需要重新登录 |
-| `startup_state: repair-required` | 支持的 6.7 系列已变化，需要重建 |
-| `startup_state: unsupported` | KWin 不属于已支持的 6.7 系列，需要代码适配 |
+| `startup_state: repair-required` | 支持的 6.7／6.8 系列构建已变化，需要重建 |
+| `startup_state: unsupported` | KWin 不属于已支持的 6.7／6.8 系列，需要代码适配 |
 | `startup_state: blocked` | 安装文件、兼容清单或事务异常，已阻止加载 |
 | `repair_required` / `relogin_required` | 分别表示需要修复或重新登录 |
 
 在线升级时，旧 KWin 与旧模块可以继续正常工作，因此可能同时看到 `active: true` 和 `repair_required: true`。模块运行时核验进程内的 GNU Build ID，配置变更不会仅因磁盘更新而停用旧模块。下次登录若不匹配则不加载模块，鼠标恢复系统原生行为。
 
-KWin 6.8 及以后明确拒绝构建和自动加载；重新编译不能代替接口适配。检查服务监听会话和文件变化，每 30 秒补查一次文件属性，仅变化时重新计算哈希；相同故障和构建组合的桌面通知去重。
+KWin 6.9 及以后明确拒绝构建和自动加载；重新编译不能代替接口适配。检查服务监听会话和文件变化，每 30 秒补查一次文件属性，仅变化时重新计算哈希；相同故障和构建组合的桌面通知去重。
 
 安装/修复的构建、测试、更新竞态或部署失败会中止并恢复已有安装。若断电或强制杀进程留下未完成事务，从源码目录执行：
 

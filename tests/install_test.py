@@ -5,6 +5,7 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -55,6 +56,20 @@ with tempfile.TemporaryDirectory(prefix="pointeraccel-install-") as temporary:
     install = ["bash", source / "install.sh", "--test-system", system, "--build-dir", build]
     uninstall = ["bash", source / "uninstall.sh", "--offline", "--test-system", system]
     before = snapshot(Path(temporary))
+
+    # A partial package update must fail preflight before creating any install files.
+    with tempfile.TemporaryDirectory(prefix="pointeraccel-rpm-") as fake_bin:
+        fake_rpm = Path(fake_bin) / "rpm"
+        fake_rpm.write_text(f'''#!/usr/bin/env python3
+import subprocess, sys
+result = subprocess.check_output([{shutil.which("rpm")!r}] + sys.argv[1:]).decode()
+if sys.argv[-1] == "kwin-devel":
+    result = result.replace("-", "-pointeraccel-test.", 1)
+print(result, end="")
+''')
+        fake_rpm.chmod(0o755)
+        run(install, 1, {"PATH": fake_bin + ":" + env["PATH"]})
+        assert snapshot(Path(temporary)) == before, "mismatched packages mutated installation"
 
     def interrupt_and_recover(expected_snapshot):
         paused = Path(temporary) / "paused"

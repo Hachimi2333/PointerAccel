@@ -16,7 +16,7 @@
   <a href="#license">License</a>
 </p>
 
-PointerAccel brings the Windows 11 pointer engine from [windows-pointer-linux](https://github.com/junaga/windows-pointer-linux) to **Fedora x86-64 / KDE Plasma 6.7 / Wayland**, with a native KWin module, a Qt Widgets control panel, and a command-line interface.
+PointerAccel brings the Windows 11 pointer engine from [windows-pointer-linux](https://github.com/junaga/windows-pointer-linux) to **Fedora x86-64 / KDE Plasma 6.7–6.8 / Wayland**, with a native KWin module, a Qt Widgets control panel, and a command-line interface.
 
 ## Features
 
@@ -32,21 +32,21 @@ PointerAccel brings the Windows 11 pointer engine from [windows-pointer-linux](h
 | --- | --- |
 | Platform | Fedora, x86-64 |
 | Session | KDE Plasma / Wayland |
-| KWin | 6.7 series; runtime and development packages must match |
-| Tested environment | Fedora 44, KWin 6.7.5, Qt 6.11.2 |
+| KWin | 6.7 and 6.8 series; runtime and development packages must match |
+| Tested environment | Fedora 44, KWin 6.8.2, Qt 6.11.2 |
 
-The module uses KWin internal interfaces and is tied to a specific KWin build. KWin 6.8 and newer are not supported. KWin package updates, including rebuilds of the same version, may require rebuilding the module.
+The module uses KWin internal interfaces and is tied to a specific KWin build. KWin 6.9 and newer are not supported. KWin package updates, including rebuilds of the same version, may require rebuilding the module. KWin 6.7 support retains its earlier 6.7.5 validation; the current adaptation is tested on 6.8.2.
 
 ## Installation
 
 ### 1. Install dependencies
 
-The following packages were used in the tested Fedora 44 / KWin 6.7.5 environment:
+The following packages are required for the tested Fedora 44 / KWin 6.8.2 environment:
 
 ```bash
 sudo dnf install \
   gcc-c++ cmake ninja-build extra-cmake-modules pkgconf-pkg-config \
-  kwin-devel-6.7.5-1.fc44 \
+  kwin-devel \
   qt6-qtbase-devel \
   kf6-kcoreaddons-devel kf6-kconfig-devel kf6-kwindowsystem-devel \
   wayland-devel wayland-protocols-devel libinput-devel systemd-devel \
@@ -112,6 +112,8 @@ pointeraccel repair
 ```
 
 Repair rebuilds and tests the module using the source snapshot saved during installation. Log out and back in after it finishes. To install changes from this repository, run `./install.sh` again.
+
+For the first upgrade from the 6.7-only plugin to KWin 6.8, run `./install.sh` from this updated repository. The old installed source snapshot cannot provide the new adaptation. Installation also refreshes the snapshot used by future repairs.
 
 If an installation is interrupted, run `./install.sh --recover` from the source directory, then rerun `./install.sh`.
 

@@ -1,5 +1,30 @@
 # 验证记录
 
+## KWin 6.8 适配验证（2026-11-01）
+
+开发包匹配：`kwin`、`kwin-libs`、`kwin-devel` 均为 `6.8.2-2.fc44.x86_64`。Qt Base／Declarative 的运行包及开发包均为 6.11.2，KDE Frameworks／ECM 为 6.31.0，满足当前 KWin 开发配置的要求。
+
+本次环境为 Fedora 44 / x86-64 / Linux 7.2.13-200.fc44 / Plasma、KWin 6.8.2 / Wayland / Qt 6.11.2 / libinput 1.31.3；使用 GCC 16.2.1、CMake 4.3.0、Ninja 1.13.2 和 Python 3.14.8。在全新 `build-kwin68` 目录完成 RelWithDebInfo 构建，**31/31 项 CTest 通过**，无跳过项，用时 26.47 秒。
+
+- 构建、安装预检和启动检查均接受 6.7／6.8，继续拒绝未经适配的系列。新增预检测试覆盖 6.7／6.8 的接受、6.6／6.9／7.0 的拒绝，以及运行包、库或开发包的版本、发行号、epoch、架构不一致；模拟部分更新时，实际安装脚本在创建安装文件前退出。
+- 新模块使用 `org.kde.kwin.PluginFactoryInterface6.8.2`，构建信息指向 `/usr/lib64/libkwin.so.6.8.2`；逐项核对库与可执行文件的 SHA-256、GNU Build ID，均与本机文件一致。只读使用新 CLI 查询现有 6.7.5 安装，正确报告 `repair-required`，没有加载旧模块。
+- 沿用现有输入适配，无新增 KWin 版本分支，指针引擎及冻结参考数据未修改。嵌套 KWin 6.8.2 验证正式插件管理器加载、RELRO 导入拦截、逐报告处理、多鼠标共享状态、热插拔、排除与恢复、触摸板透传、缩放、禁用恢复、错误批次回退、Wayland／XWayland raw motion 和零加速输出保留 raw。
+- 现有独立参考模型、冻结连续状态与跨批次输入基线、GUI 控制和 125%／200% 缩放测试全部通过。
+- 隔离 HOME、模拟系统目录和私有 D-Bus 会话中，验证安装往返、旧布局升级、安装中断恢复、源码目录删除后的快照修复、重新登录门控，以及构建、测试和升级竞态失败时保留原安装。同版本重打包竞态测试不再依赖旧的 RPM 发行号。
+- 本次没有替换本机系统插件或改变桌面配置；测试后比对已安装插件、系统记录、用户程序、设置、KWin 配置及服务等 27 个文件／链接，与测试前一致。clang-format、cmake-format、Python 语法和差异空白检查通过。
+
+复现命令：
+
+```bash
+cmake -S . -B build-kwin68 -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DBUILD_TESTING=ON
+cmake --build build-kwin68 --parallel 4
+ctest --test-dir build-kwin68 --output-on-failure --output-junit ctest-results.xml
+```
+
+测试日志位于 `build-kwin68/Testing/Temporary/LastTest.log`，JUnit 报告为 `build-kwin68/ctest-results.xml`；本机构建标识另存于 `build-kwin68/build-identity.json`。正式模块产物为 `build-kwin68/stage/qt6/plugins/kwin/plugins/pointeraccel_kwin.so`。
+
+6.7 的支持沿用此前 6.7.5 的真实构建与测试记录，本次没有重新运行 6.7 compositor。真实鼠标、触摸板、多屏、休眠和游戏输入仍需用户运行更新后的 `./install.sh` 并重新登录后验证；嵌套会话结果不代表已完成这些硬件验证。
+
 ## QWidget 重构验证（2026-11-01）
 
 环境仍为 Fedora 44 / x86-64 / KWin 6.7.5 / Qt 6.11.2 / libinput 1.31.3。重构前提交 `7f67730` 的 29 项 CTest 全部通过；本次在全新 `build-refactor` 目录以 RelWithDebInfo 构建，**30/30 项通过**，无跳过项，用时约 24 秒。

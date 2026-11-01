@@ -73,8 +73,8 @@ def fingerprint():
         )
         versions[package], packages[package] = result.stdout.strip().split('\t')
     version = versions['kwin']
-    if not re.fullmatch(r'6\.7\.\d+', version):
-        raise ValueError(f'KWin {version} 尚未适配；支持系列为 6.7，需要代码审查，重新编译不能解决。')
+    if not re.fullmatch(r'6\.(7|8)\.\d+', version):
+        raise ValueError(f'KWin {version} 尚未适配；支持系列为 6.7、6.8，需要代码审查，重新编译不能解决。')
     if len(set(packages.values())) != 1:
         raise ValueError('kwin、kwin-libs 和 kwin-devel 版本/发行号不匹配，请先完成系统更新。')
     library = LIBRARY.resolve(strict=True)
