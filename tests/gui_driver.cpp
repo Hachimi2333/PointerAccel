@@ -1,25 +1,18 @@
-// Drives the real QML controller in an isolated nested compositor, then closes.
+// Drives the real QWidget controller in an isolated nested compositor, then closes.
 #include "controller.hpp"
+#include "main_window.hpp"
 #include <QApplication>
 #include <QDir>
-#include <QQmlApplicationEngine>
-#include <QQmlContext>
-#include <QQuickStyle>
-#include <QQuickWindow>
 #include <QTimer>
 
 int main(int argc, char** argv)
 {
 	QApplication app(argc, argv);
 	app.setQuitOnLastWindowClosed(false);
-	QQuickStyle::setFallbackStyle("Fusion");
 	pa::GuiController controller;
-	QQmlApplicationEngine engine;
-	engine.setInitialProperties({{"controller", QVariant::fromValue(&controller)}});
-	engine.load(QUrl("qrc:/pointeraccel/gui/Main.qml"));
-	if (engine.rootObjects().isEmpty())
-		return 1;
-	auto* window = qobject_cast<QQuickWindow*>(engine.rootObjects().first());
+	pa::MainWindow mainWindow(controller);
+	auto* window = &mainWindow;
+	window->show();
 	bool submitted = false;
 	const bool preview = app.arguments().size() == 3 && app.arguments()[1] == "--preview";
 	int previewPage = 0;
@@ -46,7 +39,7 @@ int main(int argc, char** argv)
 				        }
 				        const auto folder = app.arguments()[2];
 				        if (!QDir().mkpath(folder) ||
-				            !window->grabWindow().save(folder + "/page-" + QString::number(previewPage) + ".png"))
+				            !window->grab().save(folder + "/page-" + QString::number(previewPage) + ".png"))
 				        {
 					        app.exit(5);
 					        return;
@@ -58,7 +51,7 @@ int main(int argc, char** argv)
 					        return;
 				        }
 				        previewScheduled = false;
-				        controller.setPage(previewPage);
+				        controller.setPage(static_cast<pa::Page>(previewPage));
 			        });
 			    return;
 		    }
@@ -66,8 +59,8 @@ int main(int argc, char** argv)
 		    {
 			    submitted = true;
 			    controller.setPollingActive(false);
-			    controller.setValue("pointer_speed", 15);
-			    controller.setValue("enhance_pointer_precision", false);
+			    controller.setPointerSpeed(15);
+			    controller.setEpp(false);
 			    controller.apply();
 		    }
 	    });

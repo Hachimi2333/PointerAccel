@@ -1,5 +1,10 @@
-#include "common.hpp"
-#include "compatibility.hpp"
+#include "config/config.hpp"
+#include "platform/paths.hpp"
+#include "platform/json_io.hpp"
+#include "platform/build_metadata.hpp"
+#include "input/validation.hpp"
+#include "control/protocol.hpp"
+#include "platform/runtime_identity.hpp"
 #include <QTemporaryFile>
 #include <gtest/gtest.h>
 #include <cmath>
@@ -42,8 +47,8 @@ TEST(Adapter, ValidatesCoalescedReportsAndDetectsMissingOrDuplicatedInput)
 
 TEST(Adapter, PerReportEvaluationDiffersFromEvaluatingMergedInput)
 {
-	windows_pointer::Engine separate, merged;
-	windows_pointer::Motion sum{};
+	pa::PointerEngine separate, merged;
+	pa::Motion sum{};
 	for (int i = 0; i < 10; ++i)
 	{
 		auto out = separate.apply({1, 1}, 120);

@@ -1,4 +1,4 @@
-#include "control.hpp"
+#include "control/client.hpp"
 #include <QCoreApplication>
 #include <QDBusContext>
 #include <QJsonArray>

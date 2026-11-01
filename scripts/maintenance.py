@@ -22,11 +22,10 @@ SOURCE_ITEMS = (
     'README.md',
     'LICENSE',
     'LICENSES',
-    'include',
+    'docs',
     'src',
     'scripts',
     'tests',
-    'tools',
     'install.sh',
     'uninstall.sh',
 )

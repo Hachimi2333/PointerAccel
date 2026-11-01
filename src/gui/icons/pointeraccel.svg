@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <title>PointerAccel</title>
+  <desc>A white mouse pointer with acceleration trails on a blue and cyan rounded square.</desc>
+  <defs>
+    <linearGradient id="background" x1="72" y1="456" x2="440" y2="56" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#2455d6"/>
+      <stop offset="0.52" stop-color="#168de2"/>
+      <stop offset="1" stop-color="#18c6cf"/>
+    </linearGradient>
+    <linearGradient id="pointer" x1="160" y1="120" x2="300" y2="390" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#e9faff"/>
+    </linearGradient>
+  </defs>
+  <rect x="24" y="24" width="464" height="464" rx="112" fill="url(#background)"/>
+  <rect x="28" y="28" width="456" height="456" rx="108" fill="none" stroke="#ffffff" stroke-opacity="0.16" stroke-width="4"/>
+  <g fill="none" stroke="#c4faff" stroke-width="18" stroke-linecap="round">
+    <path d="M292 164 382 254" opacity="0.9"/>
+    <path d="M336 282 396 342" opacity="0.75"/>
+    <path d="M346 370 370 394" opacity="0.6"/>
+  </g>
+  <path d="m160 130 194 150-88 18 39 78-48 24-40-80-57 57Z" fill="#103e91" opacity="0.22"/>
+  <path d="m160 120 194 150-88 18 39 78-48 24-40-80-57 57Z" fill="url(#pointer)" stroke="#ffffff" stroke-width="4" stroke-linejoin="round"/>
+</svg>

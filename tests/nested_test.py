@@ -2,6 +2,7 @@
 """Isolated KWin integration test; never connects to the desktop's D-Bus session."""
 
 import ast
+from continuous_input import exercise
 import json
 import os
 import signal
@@ -213,7 +214,7 @@ def inside(build):
             # The GUI commits through the shared controller and exits without touching module lifetime.
             gui = subprocess.run(
                 [str(build / "pa_gui_driver")],
-                env=client_env | {"QT_QUICK_BACKEND": "software"},
+                env=client_env,
                 stdout=log,
                 stderr=log,
                 timeout=20,
@@ -227,6 +228,12 @@ def inside(build):
             assert not gui_status["settings"]["enhance_pointer_precision"]
             after_gui = rpc("TestReports", json.dumps({"reports": reports[:2]}))
             assert after_gui["observed"] == after_gui["expected"]
+            fixture = json.loads((Path(__file__).parent / "fixtures/continuous_input.json").read_text())
+            def set_scale(value):
+                subprocess.run(["kscreen-doctor", f"output.Virtual-0.scale.{value}"], env=env,
+                               check=True, capture_output=True, timeout=10)
+            continuous = exercise(rpc, config_path, fixture["actions"], set_scale)
+            assert continuous == fixture["observations"], ("continuous input diverged from 7f67730", continuous)
             call("/Plugins", "org.kde.KWin.Plugins.UnloadPlugin", "pointeraccel_kwin")
             assert compositor.poll() is None
             print(

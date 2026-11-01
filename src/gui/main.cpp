@@ -1,27 +1,19 @@
 #include "controller.hpp"
+#include "main_window.hpp"
 #include <QApplication>
-#include <QQmlApplicationEngine>
-#include <QQmlContext>
-#include <QQuickStyle>
+#include <QIcon>
 
 int main(int argc, char** argv)
 {
 	QApplication app(argc, argv);
 	app.setApplicationName("pointeraccel-gui");
 	app.setApplicationDisplayName("PointerAccel");
-	QQuickStyle::setFallbackStyle("Fusion");
+	QIcon icon;
+	for (int size : {16, 24, 32, 48, 64, 128, 256, 512})
+		icon.addFile(QStringLiteral(":/icons/pointeraccel-%1.png").arg(size), QSize(size, size));
+	app.setWindowIcon(icon);
 	pa::GuiController controller;
-	QQmlApplicationEngine engine;
-	engine.setInitialProperties({{"controller", QVariant::fromValue(&controller)}});
-	QObject::connect(
-	    &engine,
-	    &QQmlApplicationEngine::objectCreationFailed,
-	    &app,
-	    []
-	    {
-		    QCoreApplication::exit(1);
-	    },
-	    Qt::QueuedConnection);
-	engine.load(QUrl("qrc:/pointeraccel/gui/Main.qml"));
+	pa::MainWindow window(controller);
+	window.show();
 	return app.exec();
 }

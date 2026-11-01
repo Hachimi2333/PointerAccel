@@ -1,5 +1,32 @@
 # 验证记录
 
+## QWidget 重构验证（2026-11-01）
+
+环境仍为 Fedora 44 / x86-64 / KWin 6.7.5 / Qt 6.11.2 / libinput 1.31.3。重构前提交 `7f67730` 的 29 项 CTest 全部通过；本次在全新 `build-refactor` 目录以 RelWithDebInfo 构建，**30/30 项通过**，无跳过项，用时约 24 秒。
+
+- 引擎实现与 `7f67730` 比较，忽略名称、命名空间、头文件路径、来源注释与空白后完全一致；独立参考模型继续覆盖 1–20 档速度、EPP 开关、多个 DPI、极限与随机输入。
+- 新增 160 步冻结状态基线，覆盖连续输入、速度/EPP 切换、DPI 变化与显式重置。期望值在生产代码变更前由旧引擎生成，测试不重新计算期望值。
+- 从 `7f67730` 重建实际 KWin 测试模块，仅让测试注入支持可选重置；捕获并冻结跨批次、多鼠标、热插拔、排除/恢复、非整数与触摸板透传、临时及持久启停、125%/150%/200% 缩放、显式重置与损坏批次回退的逐报告输出。重构后的嵌套 KWin 与该基线一致，包括位移、raw、时间戳、来源和运行状态。
+- Wayland 和 XWayland raw 客户端仍按报告校验顺序及原始位移；零输出保留 raw，GUI 应用并退出后模块继续处理输入。
+- QWidget 真实鼠标/键盘操作覆盖启用、速度滑块与数值框同步、跨页草稿、设备排除、关闭取消/放弃/应用、离线保存后保留窗口；原有提交锁、revision 冲突、损坏配置只读、外部编辑、后台刷新、trace、诊断导出和重置测试全部保留。
+- 明暗主题、900×680 与 600×500、100%/125%/200% 缩放的三页截图保存在 `build-refactor/gui-qa/page-*.png`；检查正文滚动、设备表格及底部按钮，控件回填不会产生草稿修改。
+- 导入表/完整 RELRO 权限恢复、隔离安装往返、源码快照修复、升级兼容保护及失败回滚继续通过；未向当前桌面安装或加载本次模块。
+- 使用更新后的白名单生成并解包源码快照，从快照单独配置 `BUILD_TESTING=OFF`，在 `build-production` 完成全部生产目标的干净构建；快照包含新目录、冻结测试数据与来源文档，不包含旧引擎目录、顶层 include/tools 或 QML。
+- 检查生产产物的实际动态依赖：CLI 不依赖 Qt GUI/Widgets/Quick/QML，GUI 不依赖 KWin 私有库或 Qt Quick/QML。正式模块不含 TestReports、TestHotplug、TestEnvironment、appendForTest 或虚拟设备后端，测试模块保留注入能力。
+- clang-format、cmake-format、Python 语法、Shell 语法和差异空白检查通过。
+
+复现主要验证：
+
+```bash
+cmake -S . -B build-refactor -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DBUILD_TESTING=ON
+cmake --build build-refactor --parallel 4
+ctest --test-dir build-refactor --output-on-failure
+```
+
+以下保留旧版本的验证记录；其中 Qt Quick、QML、旧目录及旧测试数量描述当时版本。真实硬件与真实多屏的待验证边界仍适用于当前版本。
+
+## 历史记录（2026-10-29）
+
 环境：Fedora 44、x86-64、KWin/Plasma 6.7.5、Qt 6.11.2、libinput 1.31.3；SELinux Enforcing、Secure Boot 启用。
 
 独立 GUI 版本（2026-10-29）的 CTest 结果：**29/29 通过**。测试运行于隔离 HOME、模拟系统目录和独立 D-Bus/KWin 会话，不替换当前桌面的系统模块。

@@ -8,7 +8,7 @@ C/C++ 批量整理使用 clang-format，VS Code 中手写代码继续使用 Micr
 - `.editorconfig` 保存基本缩进规则及对应的 vcFormat 风格。Shell 使用 Tab，Python 使用 4 个空格，CMake 使用 2 个空格。
 - `.cmake-format.json` 保存 CMake 的 2 空格缩进和 120 列换行设置，同时关闭参数排序和注释重排。
 
-Python 和 QML 保留本次已整理的排版，不增加专用格式化工具或检查要求。
+Python 保持现有排版，不增加专用格式化工具或检查要求；GUI 使用 QWidget，不再维护 QML。
 
 ## 安装工具
 

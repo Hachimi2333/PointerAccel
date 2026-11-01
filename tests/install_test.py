@@ -115,11 +115,11 @@ with tempfile.TemporaryDirectory(prefix="pointeraccel-install-") as temporary:
     gui = home / ".local/share/pointeraccel/bin/pointeraccel-gui"
     assert gui.is_file()
     saved_config = (home / ".config/pointeraccel/config.json").read_bytes()
-    # Runtime QML/font caches are not installation-owned files.
+    # Runtime font caches are not installation-owned files.
     with tempfile.TemporaryDirectory(prefix="pointeraccel-gui-cache-") as gui_cache:
         process = subprocess.Popen(
             [cli, "gui"],
-            env=env | {"QT_QPA_PLATFORM": "offscreen", "QT_QUICK_BACKEND": "software", "XDG_CACHE_HOME": gui_cache},
+            env=env | {"QT_QPA_PLATFORM": "offscreen", "XDG_CACHE_HOME": gui_cache},
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
         )
@@ -132,7 +132,7 @@ with tempfile.TemporaryDirectory(prefix="pointeraccel-install-") as temporary:
             assert process.poll() is None, "installed GUI exited during startup"
             assert Path(f"/proc/{process.pid}/exe").resolve() == gui, "CLI did not replace itself with the GUI"
             time.sleep(0.2)
-            assert process.poll() is None, "installed QML failed to load"
+            assert process.poll() is None, "installed QWidget GUI failed to start"
         finally:
             process.terminate()
             process.communicate(timeout=10)
