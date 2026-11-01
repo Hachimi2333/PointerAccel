@@ -107,6 +107,14 @@ with tempfile.TemporaryDirectory(prefix="pointeraccel-install-") as temporary:
     run(install, 1, {"POINTERACCEL_TEST_FAIL_AFTER_MODULE": "1"})
     assert snapshot(Path(temporary)) == before, "failed first install did not roll back"
     run(install)
+    data = home / ".local/share/pointeraccel"
+    notice = (data / "licenses/windows-pointer-linux.txt").read_bytes()
+    # Preserve the original upstream notice byte-for-byte after moving it into README.
+    assert hashlib.sha256(notice).hexdigest() == "6e32a6f6623073fc97f5d043c253e9ef566ac534ff438a2780f56abc0c740990"
+    for name in ("README.md", "README.zh-CN.md"):
+        document = (data / name).read_bytes()
+        assert document == (source / name).read_bytes()
+        assert notice in document
     cli = home / ".local/bin/pointeraccel"
     run([cli, "config", "set", "pointer-speed", "14/20"])
     run([cli, "config", "set", "enhance-pointer-precision", "off"])

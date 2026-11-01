@@ -20,8 +20,8 @@ LIBRARY = Path('/usr/lib64/libkwin.so.6')
 SOURCE_ITEMS = (
     'CMakeLists.txt',
     'README.md',
+    'README.zh-CN.md',
     'LICENSE',
-    'LICENSES',
     'docs',
     'src',
     'scripts',
@@ -268,6 +268,16 @@ def main(args):
             raise ValueError('模块与兼容清单不匹配。')
     elif command == 'snapshot':
         snapshot(*args)
+    elif command == 'license':
+        readme, output = args
+        start = '<!-- BEGIN WINDOWS-POINTER-LINUX LICENSE -->\n\n```text\n'
+        end = '```\n\n<!-- END WINDOWS-POINTER-LINUX LICENSE -->'
+        document = Path(readme).read_text()
+        _, has_start, content = document.partition(start)
+        notice, has_end, _ = content.partition(end)
+        if not has_start or not has_end or not notice.startswith('BSD 3-Clause License\n'):
+            raise ValueError('README 缺少完整的 windows-pointer-linux 许可证段落。')
+        Path(output).write_text(notice)
     elif command == 'extract':
         extract(*args)
     elif command == 'locked':

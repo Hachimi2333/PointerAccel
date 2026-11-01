@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 // Derived from windows-pointer-linux 0bdd644d420737a7aea506e252fc5e12db34c599.
-// See LICENSES/windows-pointer-linux.txt and docs/algorithm-origin.md.
+// See README.md (third-party license) and docs/algorithm-origin.md.
 #include "core/pointer_engine.hpp"
 
 #include <gtest/gtest.h>

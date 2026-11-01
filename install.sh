@@ -101,6 +101,7 @@ for pa_path in "$pa_unit" "$pa_unit_link"; do
 done
 pa_preflight=$(mktemp -d)
 trap 'rm -rf -- "$pa_preflight"' EXIT
+python3 "$pa_source/scripts/maintenance.py" license "$pa_source/README.md" "$pa_preflight/windows-pointer-linux.txt"
 python3 "$pa_source/scripts/maintenance.py" fingerprint "$pa_preflight/before.json"
 if [[ ${POINTERACCEL_TEST_NO_BUILD:-0} != 1 || ${#pa_system_test[@]} == 0 ]]; then
 	cmake -S "$pa_source" -B "$pa_build" -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DBUILD_TESTING=ON
@@ -221,8 +222,9 @@ python3 "$pa_source/scripts/maintenance.py" unit "$pa_unit" "$pa_data/bin/pointe
 	"${pa_data%/*}" "${pa_state%/*}"
 ln -sfn -- "$pa_unit" "$pa_unit_link"
 install -m0644 -- "$pa_source/README.md" "$pa_data/README.md"
+install -m0644 -- "$pa_source/README.zh-CN.md" "$pa_data/README.zh-CN.md"
 install -m0644 -- "$pa_source/LICENSE" "$pa_data/licenses/PointerAccel.txt"
-install -m0644 -- "$pa_source/LICENSES/windows-pointer-linux.txt" "$pa_data/licenses/windows-pointer-linux.txt"
+install -m0644 -- "$pa_preflight/windows-pointer-linux.txt" "$pa_data/licenses/windows-pointer-linux.txt"
 "$pa_data/bin/pointeraccel" internal-init-config
 ln -sfn -- "$pa_data/bin/pointeraccel" "$pa_cli"
 printf '%s\n' "$pa_uid" >"$pa_state/owner"
@@ -247,7 +249,8 @@ pa_manifest_new="$pa_state/manifest.new"
 for pa_path in "$pa_data/bin/pointeraccel" "$pa_data/bin/pointeraccel-gui" "$pa_data/bin/pointeraccel-raw-wayland" \
 	"$pa_data/bin/pointeraccel-raw-x11" "$pa_data/uninstall.sh" "$pa_data/scripts/paths.sh" \
 	"$pa_data/scripts/system-plugin.sh" "$pa_data/scripts/maintenance.py" "$pa_data/source.tar.gz" \
-	"$pa_data/README.md" "$pa_data/licenses/PointerAccel.txt" "$pa_data/licenses/windows-pointer-linux.txt" \
+	"$pa_data/README.md" "$pa_data/README.zh-CN.md" "$pa_data/licenses/PointerAccel.txt" \
+	"$pa_data/licenses/windows-pointer-linux.txt" \
 	"$pa_state/owner" "$pa_state/system.sha256" "$pa_state/session.json" "$pa_unit" "$pa_state/backups/kwin.json" \
 	"$pa_state/backups/config.before"; do
 	if [[ -f $pa_path ]]; then

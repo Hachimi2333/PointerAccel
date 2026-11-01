@@ -4,7 +4,7 @@ PointerAccel 融合了 [windows-pointer-linux](https://github.com/junaga/windows
 
 - 上游版本：1.0.0。
 - 来源提交：[`0bdd644d420737a7aea506e252fc5e12db34c599`](https://github.com/junaga/windows-pointer-linux/tree/0bdd644d420737a7aea506e252fc5e12db34c599)。
-- 许可证：[BSD-3-Clause](../LICENSES/windows-pointer-linux.txt)，原版权声明完整保留。
+- 许可证：[BSD-3-Clause](../README.md#third-party-license)，原版权声明、许可条件和免责声明完整保留在项目首页。
 - 下表记录 2026-10-28 最初导入时的路径与原始 SHA-256，仅用于追溯来源。之后的格式整理及内部融合改变了文件字节和位置，不能将这些历史哈希用作当前源码的校验值。
 
 | 最初导入路径 | 原项目路径 | SHA-256 |
