@@ -104,9 +104,9 @@ trap 'rm -rf -- "$pa_preflight"' EXIT
 python3 "$pa_source/scripts/maintenance.py" license "$pa_source/README.md" "$pa_preflight/windows-pointer-linux.txt"
 python3 "$pa_source/scripts/maintenance.py" fingerprint "$pa_preflight/before.json"
 if [[ ${POINTERACCEL_TEST_NO_BUILD:-0} != 1 || ${#pa_system_test[@]} == 0 ]]; then
-	cmake -S "$pa_source" -B "$pa_build" -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DBUILD_TESTING=ON
+	cmake -S "$pa_source" -B "$pa_build" -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DPA_BUILD_DESKTOP=ON -DBUILD_TESTING=ON
 	cmake --build "$pa_build" --parallel "${POINTERACCEL_BUILD_JOBS:-4}"
-	ctest --test-dir "$pa_build" --output-on-failure
+	ctest --test-dir "$pa_build" --output-on-failure --no-tests=error
 fi
 python3 "$pa_source/scripts/maintenance.py" verify "$pa_preflight/before.json"
 pa_program="$pa_build/pointeraccel"

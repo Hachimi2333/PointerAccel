@@ -20,6 +20,9 @@ LIBRARY = Path('/usr/lib64/libkwin.so.6')
 SOURCE_ITEMS = (
     'CMakeLists.txt',
     'CMakePresets.json',
+    '.clang-format',
+    '.cmake-format.json',
+    '.editorconfig',
     'AGENTS.md',
     'cmake',
     'README.md',

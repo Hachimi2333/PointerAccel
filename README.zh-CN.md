@@ -134,13 +134,15 @@ pointeraccel repair
 ## 构建与测试
 
 ```bash
-cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo
-cmake --build build --parallel 4
-ctest --test-dir build --output-on-failure
+cmake --preset full
+cmake --build --preset full
+ctest --preset full
 
 # 从构建目录启动控制面板
-./build/pointeraccel gui
+./build-full/pointeraccel gui
 ```
+
+仅运行引擎测试可使用 `engine` preset，不需要 Qt 或 KWin。生产构建使用 `production` preset。分层、单场景执行和日志说明见 [测试指南](docs/testing.md)。
 
 ## 文档
 

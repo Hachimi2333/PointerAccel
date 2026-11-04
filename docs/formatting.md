@@ -20,16 +20,19 @@ sudo dnf install clang-tools-extra shfmt cmakelang
 
 本次使用 clang-format 22.1.8、shfmt 3.7.0 和 cmakelang 0.6.13。shfmt 的部分发行版构建不输出 `--version`，可用 `rpm -q shfmt` 查询包版本。
 
+cmakelang 0.6.13 的 `re.Scanner` 用法与 Python 3.15 不兼容；运行原版 cmake-format 时使用 Python 3.14 或更早版本。
+
 ## 批量格式化
 
-在项目根目录执行以下命令。文件列表来自 Git，构建产物和生成文件不参与排版；头文件模板按 C++ 处理。
+在项目根目录执行以下命令。文件列表来自 Git，构建产物和生成文件不参与排版；头文件模板按 C++ 处理。冻结引擎和历史状态基线明确排除，禁止借格式整理修改其字节。
 
 ```bash
-git ls-files -z -- '*.c' '*.cpp' '*.h' '*.hpp' '*.hpp.in' |
+git ls-files -z -- '*.c' '*.cpp' '*.h' '*.hpp' '*.hpp.in' \
+  ':!:src/core/pointer_engine.cpp' ':!:src/core/pointer_engine.hpp' ':!:tests/engine/state_baseline.hpp' |
   xargs -0 -r clang-format --assume-filename=source.cpp -i
 
 git ls-files -z -- '*.sh' | xargs -0 -r shfmt -w
-cmake-format -i CMakeLists.txt
+cmake-format -i CMakeLists.txt tests/CMakeLists.txt cmake/VerifyFrozen.cmake
 ```
 
 shfmt 从 `.editorconfig` 读取 Bash 方言和 Tab 缩进设置。新增分支、循环及连续命令应展开到多行；它会保留部分手写的单行结构。
@@ -39,11 +42,12 @@ shfmt 从 `.editorconfig` 读取 Bash 方言和 Tab 缩进设置。新增分支�
 ```bash
 git diff --check
 
-git ls-files -z -- '*.c' '*.cpp' '*.h' '*.hpp' '*.hpp.in' |
+git ls-files -z -- '*.c' '*.cpp' '*.h' '*.hpp' '*.hpp.in' \
+  ':!:src/core/pointer_engine.cpp' ':!:src/core/pointer_engine.hpp' ':!:tests/engine/state_baseline.hpp' |
   xargs -0 -r clang-format --assume-filename=source.cpp --dry-run --Werror
 
 git ls-files -z -- '*.sh' | xargs -0 -r shfmt -d
-cmake-format --check CMakeLists.txt
+cmake-format --check CMakeLists.txt tests/CMakeLists.txt cmake/VerifyFrozen.cmake
 
 for script in install.sh uninstall.sh scripts/*.sh; do
   bash -n "$script"

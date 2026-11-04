@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
 """Isolated KWin integration test; never connects to the desktop's D-Bus session."""
 
-import ast
 import json
 import os
-import signal
 import selectors
 from pathlib import Path
 import subprocess
@@ -13,9 +11,11 @@ import tempfile
 import time
 
 import unittest
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'support'))
-from harness import Sandbox, dbus_call, start_process, stop, test_main, wait_for
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "support"))
+from harness import Sandbox, dbus_call, start_process, stop, test_main
 from continuous_input import exercise
+
 BUILD = Path(sys.argv[1]).resolve()
 
 
@@ -64,7 +64,7 @@ class NestedInput(unittest.TestCase):
             )
 
             def call(path, method, *args):
-                interface, name = method.rsplit('.', 1)
+                interface, name = method.rsplit(".", 1)
                 return dbus_call(env, path, interface, name, *args)
 
             def rpc(name, *args):
@@ -149,23 +149,24 @@ class NestedInput(unittest.TestCase):
                                 break
                             samples.append(json.loads(line))
                         for axis in ["x", "y"]:
-                            self.assertEqual(sum(s["raw_" + axis] for s in samples), sum(r[axis] for r in protocol_reports), (
-                                client,
-                                samples,
-                            ))
+                            self.assertEqual(
+                                sum(s["raw_" + axis] for s in samples),
+                                sum(r[axis] for r in protocol_reports),
+                                (
+                                    client,
+                                    samples,
+                                ),
+                            )
                         samples = [
                             s for s in samples if s["raw_x"] or s["raw_y"]
                         ]  # The explicit test warp sends a zero marker.
-                        self.assertEqual([(s["raw_x"], s["raw_y"]) for s in samples], [
-                            (r["x"], r["y"]) for r in protocol_reports
-                        ], (client, samples))
+                        self.assertEqual(
+                            [(s["raw_x"], s["raw_y"]) for s in samples],
+                            [(r["x"], r["y"]) for r in protocol_reports],
+                            (client, samples),
+                        )
                     finally:
-                        probe.terminate()
-                        try:
-                            probe.wait(timeout=3)
-                        except subprocess.TimeoutExpired:
-                            probe.kill()
-                            probe.wait()
+                        stop(probe)
                         selector.close()
                         probe.stdout.close()
                 config_path = Path(env["XDG_CONFIG_HOME"]) / "pointeraccel/config.json"
@@ -205,7 +206,9 @@ class NestedInput(unittest.TestCase):
                 )
                 self.assertEqual(gui.returncode, 0, f"GUI failed to apply/close: {gui.returncode}")
                 gui_status = json.loads(
-                    subprocess.check_output([str(build / "pointeraccel"), "status", "--json"], env=env, text=True)
+                    subprocess.check_output(
+                        [str(build / "pointeraccel"), "status", "--json"], env=env, text=True, timeout=10
+                    )
                 )
                 self.assertTrue(gui_status["loaded"] and gui_status["active"])
                 self.assertEqual(gui_status["settings"]["pointer_speed"], 15)
@@ -213,11 +216,20 @@ class NestedInput(unittest.TestCase):
                 after_gui = rpc("TestReports", json.dumps({"reports": reports[:2]}))
                 self.assertEqual(after_gui["observed"], after_gui["expected"])
                 fixture = json.loads((Path(__file__).parents[1] / "fixtures/continuous_input.json").read_text())
+
                 def set_scale(value):
-                    subprocess.run(["kscreen-doctor", f"output.Virtual-0.scale.{value}"], env=env,
-                                   check=True, capture_output=True, timeout=10)
+                    subprocess.run(
+                        ["kscreen-doctor", f"output.Virtual-0.scale.{value}"],
+                        env=env,
+                        check=True,
+                        capture_output=True,
+                        timeout=10,
+                    )
+
                 continuous = exercise(rpc, config_path, fixture["actions"], set_scale)
-                self.assertEqual(continuous, fixture["observations"], ("continuous input diverged from 7f67730", continuous))
+                self.assertEqual(
+                    continuous, fixture["observations"], ("continuous input diverged from 7f67730", continuous)
+                )
                 call("/Plugins", "org.kde.KWin.Plugins.UnloadPlugin", "pointeraccel_kwin")
                 self.assertTrue(compositor.poll() is None)
                 print(
@@ -229,13 +241,9 @@ class NestedInput(unittest.TestCase):
                 print(log.read(), file=sys.stderr)
                 raise
             finally:
-                compositor.terminate()
-                try:
-                    compositor.wait(timeout=10)
-                except subprocess.TimeoutExpired:
-                    compositor.kill()
-                    compositor.wait()
+                stop(compositor)
                 log.close()
+
 
 if __name__ == "__main__":
     test_main(BUILD, private_bus=True)

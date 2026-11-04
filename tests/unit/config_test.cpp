@@ -1,5 +1,6 @@
 #include "config/repository.hpp"
 #include <QFile>
+#include <QJsonArray>
 #include <QTemporaryDir>
 #include <gtest/gtest.h>
 
@@ -123,6 +124,14 @@ TEST(Configuration, ValidatesTypesRangesAndExclusionEntries)
 		QString error;
 		pa::parseConfig(incomplete, &error);
 		EXPECT_FALSE(error.isEmpty()) << it.key().toStdString();
+	}
+	for (const auto& list : {QJsonArray{QJsonValue(1)}, QJsonArray{QJsonValue("")}})
+	{
+		auto invalid = valid;
+		invalid["excluded_devices"] = list;
+		QString error;
+		pa::parseConfig(invalid, &error);
+		EXPECT_FALSE(error.isEmpty());
 	}
 	QString error;
 	EXPECT_EQ(pa::parseConfig(valid, &error), pa::Config{});

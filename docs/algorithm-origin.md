@@ -22,3 +22,6 @@ PointerAccel 融合了 [windows-pointer-linux](https://github.com/junaga/windows
 2026-11-01 重构只调整引擎名称、命名空间、引用路径和来源注释；剔除这些差异与空白后，引擎实现与重构前提交 `7f67730` 一致。曲线常量、Q16 运算、段历史、余量、零报告和 DPI 规则均保留。独立参考模型不复用生产计算函数。
 
 `tests/engine/state_baseline.hpp` 保存重构前生成的 160 步连续状态结果，包含配置、EPP、DPI 变化和显式重置。`tests/fixtures/continuous_input.json` 则来自提交 `7f67730` 的实际嵌套 KWin 模块，仅将测试注入中的自动重置改为可选，覆盖跨批次输入、多鼠标、缩放、热插拔、排除、启停和错误回退。正常测试只读取这两份基线，不重新生成期望值。
+
+
+2026-11-04 的测试与架构重构冻结当前 `src/core/` 两个文件的原字节，并通过 `cmake/VerifyFrozen.cmake` 校验上述历史基线。新增 `tests/fixtures/input_equivalence.json` 来源为生产改动前的 `e73f4c6` 输入实现（观察能力见保护提交 `d84425d`）；记录双虚拟输出混合缩放、每份事件位置与诊断轨迹，以及队列溢出回退。新增基线不替代原来的参考模型或历史数据，正常测试不提供重生成入口。

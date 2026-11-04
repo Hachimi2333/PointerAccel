@@ -134,13 +134,15 @@ Uninstallation restores the previous KWin enable setting and application configu
 ## Building and testing
 
 ```bash
-cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo
-cmake --build build --parallel 4
-ctest --test-dir build --output-on-failure
+cmake --preset full
+cmake --build --preset full
+ctest --preset full
 
 # Launch the control panel from the build directory
-./build/pointeraccel gui
+./build-full/pointeraccel gui
 ```
+
+Use the `engine` preset to test the frozen engine without Qt or KWin, or `production` to build without tests. See the [testing guide](docs/testing.md) for test layers, individual scenarios, and artifacts.
 
 ## Documentation
 
