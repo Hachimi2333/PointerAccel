@@ -1,6 +1,7 @@
 #pragma once
 #include "config/config.hpp"
 #include "protocol.hpp"
+#include "transport.hpp"
 #include <QDBusConnection>
 #include <functional>
 
@@ -24,11 +25,11 @@ public:
 	explicit ControlClient(QDBusConnection connection = QDBusConnection::sessionBus(), int timeoutMs = 5000);
 	QJsonObject request(const QString& method, const QVariantList& args, QString* error) const;
 	QJsonObject status(const QJsonObject& cachedStartup = {}) const;
+	QJsonObject status(const ConfigSnapshot& snapshot, const QJsonObject& cachedStartup) const;
 	CommitResult commit(const Config& config, const QString& expectedRevision) const;
 	CommitResult update(const std::function<void(Config&)>& edit) const;
 
 private:
-	QDBusConnection bus;
-	int timeout;
+	DbusTransport transport;
 };
 }

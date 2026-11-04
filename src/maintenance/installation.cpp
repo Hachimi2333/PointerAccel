@@ -16,8 +16,8 @@ namespace
 {
 bool plainPath(const QString& path)
 {
-	return path.startsWith('/') && !path.contains("/../") && !path.contains("/./") && !path.contains('\n') &&
-	       !path.contains('\t');
+	return path.startsWith('/') && !path.split('/').contains("..") && !path.split('/').contains(".") &&
+	       !path.contains('\n') && !path.contains('\t');
 }
 
 bool allowedFile(const QString& path)
@@ -88,9 +88,11 @@ bool verifyInstallation(QString* error)
 	    readText(stateRoot() + "/owner") != QString::number(getuid()))
 		return reject("缺少有效的当前用户安装清单。");
 	for (const auto& path : {dataRoot(),
+	         configRoot(),
 	         stateRoot(),
 	         dataRoot() + "/bin",
 	         dataRoot() + "/scripts",
+	         dataRoot() + "/licenses",
 	         stateRoot() + "/backups",
 	         QFileInfo(sessionUnitPath()).path(),
 	         QFileInfo(sessionLinkPath()).path()})
@@ -108,7 +110,7 @@ bool verifyInstallation(QString* error)
 		const QString value = QString::fromUtf8(parts[1]), path = QString::fromUtf8(parts[2]);
 		if (kind == "D")
 		{
-			if (!allowedDirectory(path))
+			if (value != "-" || !allowedDirectory(path))
 				return reject("目录清单超出允许范围。");
 			continue;
 		}

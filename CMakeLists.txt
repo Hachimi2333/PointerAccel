@@ -59,7 +59,7 @@ add_library(pa_platform STATIC src/platform/paths.cpp src/platform/json_io.cpp s
 target_include_directories(pa_platform PUBLIC src)
 target_link_libraries(pa_platform PUBLIC Qt6::Core ${CMAKE_DL_LIBS})
 
-add_library(pa_config STATIC src/config/config.cpp)
+add_library(pa_config STATIC src/config/config.cpp src/config/repository.cpp)
 target_link_libraries(pa_config PUBLIC pa_engine pa_platform)
 
 add_library(pa_runtime_info STATIC src/platform/build_metadata.cpp)
@@ -96,11 +96,18 @@ endfunction()
 pa_kwin_target(pointeraccel_kwin pa_capture stage)
 
 find_package(KF6Config REQUIRED)
-set(PA_MAINTENANCE_SOURCES src/maintenance/context.cpp src/maintenance/installation.cpp src/maintenance/startup.cpp
-                           src/maintenance/session_watch.cpp src/maintenance/watch_paths.cpp src/maintenance/repair.cpp)
+set(PA_MAINTENANCE_SOURCES
+    src/maintenance/context.cpp
+    src/maintenance/installation.cpp
+    src/maintenance/startup.cpp
+    src/maintenance/startup_facts.cpp
+    src/maintenance/startup_policy.cpp
+    src/maintenance/session_watch.cpp
+    src/maintenance/watch_paths.cpp
+    src/maintenance/repair.cpp)
 add_library(pa_maintenance STATIC ${PA_MAINTENANCE_SOURCES})
 target_link_libraries(pa_maintenance PUBLIC pa_platform Qt6::DBus KF6::ConfigCore)
-set(PA_CONTROL_SOURCES src/control/client.cpp)
+set(PA_CONTROL_SOURCES src/control/client.cpp src/control/transport.cpp src/control/status.cpp)
 add_library(pa_control STATIC ${PA_CONTROL_SOURCES})
 target_link_libraries(pa_control PUBLIC pa_config pa_maintenance)
 

@@ -55,6 +55,18 @@ private slots:
 		QCOMPARE(current.excluded, target.excluded);
 	}
 
+	void statusUsesTheProvidedConfigurationRevision()
+	{
+		const auto observed = pa::configuration();
+		auto newer = observed.config;
+		newer.enabled = false;
+		QString error;
+		QVERIFY(pa::writeConfig(newer, &error));
+		const auto status = pa::ControlClient().status(observed, {{"startup_state", "not-installed"}});
+		QCOMPARE(status["configured_enabled"].toBool(), observed.config.enabled);
+		QCOMPARE(pa::configuration().config.enabled, false);
+	}
+
 	void failuresAndTimeout()
 	{
 		pa::ControlClient control;

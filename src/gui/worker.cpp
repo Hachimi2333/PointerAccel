@@ -5,6 +5,7 @@
 #include "platform/json_io.hpp"
 #include <QCoreApplication>
 #include <QDateTime>
+#include <QUuid>
 namespace pa
 {
 GuiWorker::~GuiWorker()
@@ -17,7 +18,7 @@ ControlClient& GuiWorker::control()
 {
 	if (!client)
 	{
-		connectionName = "pointeraccel-gui-" + QString::number(QCoreApplication::applicationPid());
+		connectionName = "pointeraccel-gui-" + QUuid::createUuid().toString(QUuid::WithoutBraces);
 		client =
 		    std::make_unique<ControlClient>(QDBusConnection::connectToBus(QDBusConnection::SessionBus, connectionName));
 	}
@@ -35,7 +36,7 @@ GuiSnapshot GuiWorker::inspect(Page page, bool force, bool checkAttributes, bool
 	}
 	GuiSnapshot result;
 	result.configuration = configuration();
-	result.status = control().status(startup);
+	result.status = control().status(result.configuration, startup);
 	result.paths = paths;
 	if (page == Page::Devices || all)
 	{

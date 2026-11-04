@@ -106,7 +106,7 @@ add_test(NAME input_equivalence
                  "${PROJECT_BINARY_DIR}")
 set_tests_properties(input_equivalence PROPERTIES LABELS "integration;contract" TIMEOUT 60)
 set_tests_properties(gui_control gui_scale_1.25 gui_scale_2 PROPERTIES LABELS integration)
-set_tests_properties(compatibility_preflight PROPERTIES LABELS "unit;contract" TIMEOUT 20)
+set_tests_properties(compatibility_preflight PROPERTIES LABELS unit TIMEOUT 20)
 set_tests_properties(nested_kwin PROPERTIES LABELS integration)
 set_tests_properties(install_roundtrip upgrade_guard PROPERTIES LABELS system)
 set_tests_properties(nested_kwin install_roundtrip upgrade_guard
@@ -123,3 +123,22 @@ foreach(scenario preserves_preexisting_configuration modified_file_blocks_uninst
                                             ${PROJECT_BINARY_DIR} InstallationTest.test_${scenario})
   set_tests_properties(install_${scenario} PROPERTIES LABELS system TIMEOUT 40)
 endforeach()
+
+add_executable(pa_manifest_probe support/manifest_probe.cpp)
+target_link_libraries(pa_manifest_probe PRIVATE pa_maintenance)
+add_test(NAME manifest_contract COMMAND Python3::Interpreter ${CMAKE_CURRENT_SOURCE_DIR}/unit/manifest_test.py
+                                        ${PROJECT_BINARY_DIR})
+set_tests_properties(manifest_contract PROPERTIES LABELS "unit;contract" TIMEOUT 30)
+
+add_executable(pa_config_test unit/config_test.cpp)
+target_link_libraries(pa_config_test PRIVATE pa_config GTest::gtest_main)
+gtest_discover_tests(
+  pa_config_test
+  PROPERTIES LABELS "unit;contract"
+  TIMEOUT 20)
+add_executable(pa_startup_test unit/startup_test.cpp)
+target_link_libraries(pa_startup_test PRIVATE pa_control GTest::gtest_main)
+gtest_discover_tests(
+  pa_startup_test
+  PROPERTIES LABELS "unit;contract"
+  TIMEOUT 20)

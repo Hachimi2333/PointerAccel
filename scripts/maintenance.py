@@ -167,6 +167,63 @@ def user_paths():
     }
 
 
+def verify_installation():
+    """The TSV contract is mirrored by the native verifier; shared corpus tests both."""
+    paths = user_paths()
+    data, state = paths['data'], paths['state']
+    manifest = Path(state) / 'manifest.tsv'
+    if manifest.is_symlink() or Path(state, 'owner').read_text().strip() != str(os.getuid()):
+        raise ValueError('缺少有效的当前用户安装清单。')
+    for path in (data, paths['config'], state, data + '/bin', data + '/scripts', data + '/licenses',
+                 state + '/backups', str(Path(paths['unit']).parent), str(Path(paths['unit-link']).parent)):
+        if Path(path).is_symlink():
+            raise ValueError('安装目录变成符号链接: ' + path)
+
+    def plain(path):
+        return path.startswith('/') and not any(part in ('.', '..') for part in path.split('/')) and not any(c in path for c in ('\n', '\t'))
+
+    def allowed_file(path):
+        return plain(path) and (path.startswith(data + '/') or path.startswith(state + '/backups/') or
+            path in (state + '/owner', state + '/system.sha256', state + '/session.json', paths['unit']))
+
+    def allowed_directory(path):
+        if not plain(path) or path in ('/', str(Path.home())):
+            return False
+        roots = (data, paths['config'], state, str(Path(paths['cli']).parent),
+                 str(Path(paths['unit']).parent), str(Path(paths['unit-link']).parent))
+        return any(path == root or root.startswith(path + '/') for root in roots) or path.startswith(data + '/') or path.startswith(state + '/')
+
+    entries = set()
+    for line in manifest.read_text().split('\n'):
+        if not line:
+            continue
+        fields = line.split('\t')
+        if len(fields) != 3:
+            raise ValueError('安装清单格式错误。')
+        kind, value, path = fields
+        if kind == 'D':
+            if value != '-' or not allowed_directory(path):
+                raise ValueError('目录清单超出允许范围。')
+            continue
+        if path in entries:
+            raise ValueError('安装清单存在重复文件。')
+        entries.add(path)
+        item = Path(path)
+        if kind == 'F':
+            if not allowed_file(path) or item.is_symlink() or not item.is_file() or digest(item) != value:
+                raise ValueError('安装文件缺失或被修改: ' + path)
+        elif kind == 'L':
+            expected = {paths['cli']: data + '/bin/pointeraccel', paths['unit-link']: paths['unit']}.get(path)
+            if not expected or value != expected or not item.is_symlink() or os.path.abspath(item.parent / os.readlink(item)) != expected:
+                raise ValueError('安装入口冲突: ' + path)
+        else:
+            raise ValueError('安装清单包含未知记录。')
+    for required in (data + '/bin/pointeraccel', state + '/owner', state + '/system.sha256',
+                     state + '/backups/kwin.json', paths['cli']):
+        if required not in entries:
+            raise ValueError('安装清单缺少必要记录: ' + required)
+
+
 def journal_path():
     return Path(user_paths()['state'] + '.transaction.json')
 
@@ -285,6 +342,8 @@ def main(args):
         extract(*args)
     elif command == 'locked':
         return locked(args)
+    elif command == 'verify-installation':
+        verify_installation()
     elif command == 'journal-path':
         print(journal_path())
     elif command == 'journal-create':
