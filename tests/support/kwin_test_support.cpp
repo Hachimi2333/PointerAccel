@@ -30,7 +30,7 @@ QString PointerRuntime::TestHotplug()
 	auto* replacement = new TestMouse(sys, false);
 	testBackend->mice[1] = replacement;
 	Q_EMIT testBackend->deviceAdded(replacement);
-	registry.entries.at(replacement).eligible = true;
+	session.devices().entries.at(replacement).eligible = true;
 	return jsonText(status());
 }
 
@@ -51,7 +51,7 @@ QString PointerRuntime::TestReports(const QString& payload)
 		testBackend = backend.get();
 		KWin::input()->addInputBackend(std::move(backend));
 		for (auto* m : testBackend->mice)
-			registry.entries.at(m).eligible = !m->isTouchpad();
+			session.devices().entries.at(m).eligible = !m->isTouchpad();
 	}
 	const auto input = QJsonDocument::fromJson(payload.toUtf8()).object();
 	const auto list = input["reports"].toArray();
@@ -65,8 +65,9 @@ QString PointerRuntime::TestReports(const QString& payload)
 		KWin::input()->warpPointer({p[0].toDouble(), p[1].toDouble()});
 	}
 	if (input["reset"].toBool(true))
-		engine.reset();
-	pa::test::ReferenceModel reference(config.settings);
+		resetState();
+	const auto testConfig = pa::parseConfig(status()["settings"].toObject());
+	pa::test::ReferenceModel reference(testConfig.settings);
 	MotionSpy spy;
 	KWin::input()->installInputEventSpy(&spy);
 	QPointF sum, raw;
@@ -85,13 +86,13 @@ QString PointerRuntime::TestReports(const QString& payload)
 		    {}};
 		auto* m = testBackend->mice.at(which);
 		std::strncpy(r.sysName, m->sys.toLocal8Bit().constData(), sizeof(r.sysName) - 1);
-		if (active)
+		if (session.active())
 			pa::capture::appendForTest(r);
 		sum += QPointF(r.dx, r.dy);
 		raw += QPointF(r.rawX, r.rawY);
 		timestamp = r.timeUsec;
 		QPointF expectedDelta(r.dx, r.dy);
-		if (active && !m->pad && !config.excluded.contains(registry.entries.at(m).id))
+		if (session.active() && !m->pad && !testConfig.excluded.contains(session.devices().entries.at(m).id))
 		{
 			const auto integer = pa::rawMotion(r.rawX, r.rawY);
 			if (integer)
@@ -110,7 +111,7 @@ QString PointerRuntime::TestReports(const QString& payload)
 	}
 	if (input["corrupt"].toBool())
 		raw.rx() += 1;
-	if (input["overflow"].toBool() && active)
+	if (input["overflow"].toBool() && session.active())
 		for (std::size_t i = 0; i <= PA_REPORT_CAPACITY; ++i)
 			pa::capture::appendForTest({});
 	Q_EMIT first->pointerMotion(sum, raw, std::chrono::microseconds(timestamp), first);

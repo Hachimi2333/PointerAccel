@@ -114,6 +114,20 @@ private slots:
 		QVERIFY(controller.dirty());
 	}
 
+	void independentWorkersSurviveOtherControllerDestruction()
+	{
+		auto first = std::make_unique<pa::GuiController>();
+		ready(*first);
+		pa::GuiController second;
+		ready(second);
+		first.reset();
+		second.setPointerSpeed(16);
+		second.apply();
+		QTRY_VERIFY(!second.busy());
+		QVERIFY(!second.dirty());
+		QCOMPARE(pa::readConfig().settings.pointerSpeed, 16);
+	}
+
 	void devicesTraceAndExport()
 	{
 		pa::GuiController controller;

@@ -142,3 +142,10 @@ gtest_discover_tests(
   pa_startup_test
   PROPERTIES LABELS "unit;contract"
   TIMEOUT 20)
+
+add_executable(pa_draft_test unit/draft_test.cpp ${PROJECT_SOURCE_DIR}/src/gui/draft.cpp)
+target_link_libraries(pa_draft_test PRIVATE pa_config GTest::gtest_main)
+gtest_discover_tests(
+  pa_draft_test
+  PROPERTIES LABELS unit
+  TIMEOUT 20)

@@ -74,8 +74,15 @@ add_library(pa_capture STATIC ${PA_CAPTURE_SOURCES})
 target_include_directories(pa_capture PUBLIC src)
 target_link_libraries(pa_capture PUBLIC Qt6::Core PkgConfig::LIBINPUT ${CMAKE_DL_LIBS})
 
-set(PA_KWIN_SOURCES src/kwin/plugin_control.hpp src/kwin/plugin.cpp src/kwin/runtime.cpp src/kwin/devices.cpp
-                    src/kwin/diagnostics.cpp)
+set(PA_KWIN_SOURCES
+    src/kwin/plugin_control.hpp
+    src/kwin/plugin.cpp
+    src/kwin/runtime.cpp
+    src/kwin/input_session.cpp
+    src/kwin/input_batch.cpp
+    src/kwin/motion_replay.cpp
+    src/kwin/devices.cpp
+    src/kwin/diagnostics.cpp)
 function(pa_kwin_target target capture stage)
   add_library(${target} MODULE ${PA_KWIN_SOURCES} ${ARGN})
   target_link_libraries(
@@ -117,6 +124,7 @@ target_link_libraries(pointeraccel PRIVATE pa_control pa_runtime_info)
 
 add_library(
   pa_gui STATIC
+  src/gui/draft.cpp
   src/gui/controller.cpp
   src/gui/worker.cpp
   src/gui/main_window.cpp

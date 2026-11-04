@@ -139,21 +139,8 @@ void GuiController::dispatch(
 
 void GuiController::accept(const GuiSnapshot& snapshot)
 {
-	m_latest = snapshot.configuration.config;
-	m_latestRevision = snapshot.configuration.revision;
-	m_configError = snapshot.configuration.error;
-	if (!m_ready || !dirty())
-	{
-		m_saved = m_draft = m_latest;
-		m_revision = m_latestRevision;
-		m_conflict = false;
-	}
-	else if (m_revision != m_latestRevision || !m_configError.isEmpty())
-	{
-		m_conflict = true;
+	if (m_config.accept(snapshot.configuration))
 		m_message = "配置已被外部修改。草稿已保留，请撤销修改以重新加载。";
-	}
-	m_ready = true;
 	m_status = snapshot.status;
 	if (snapshot.devices)
 	{
@@ -198,13 +185,13 @@ QList<DeviceInfo> GuiController::devices() const
 	for (auto& device : list)
 	{
 		connected.insert(device.id);
-		device.excluded = m_draft.excluded.contains(device.id);
+		device.excluded = m_config.value().excluded.contains(device.id);
 	}
-	auto known = m_saved.excluded + m_draft.excluded;
+	auto known = m_config.savedValue().excluded + m_config.value().excluded;
 	known.removeDuplicates();
 	for (const auto& id : known)
 		if (!connected.contains(id))
-			list.append({id, "未连接的设备", true, false, false, m_draft.excluded.contains(id)});
+			list.append({id, "未连接的设备", true, false, false, m_config.value().excluded.contains(id)});
 	return list;
 }
 void GuiController::setPage(Page page)
@@ -219,7 +206,7 @@ void GuiController::edit(const std::function<void(Config&)>& change)
 {
 	if (!valid() || m_applying)
 		return;
-	change(m_draft);
+	m_config.edit(change);
 	m_message.clear();
 	emit changed();
 }
@@ -292,9 +279,7 @@ void GuiController::revert()
 {
 	if (m_busy)
 		return;
-	m_draft = m_saved = m_latest;
-	m_revision = m_latestRevision;
-	m_conflict = false;
+	m_config.revert();
 	m_message.clear();
 	emit changed();
 	refresh(true);
@@ -302,10 +287,10 @@ void GuiController::revert()
 
 void GuiController::apply()
 {
-	if (!valid() || !dirty() || m_busy || m_conflict)
+	if (!valid() || !dirty() || m_busy || m_config.conflict())
 		return;
-	const auto target = m_draft;
-	const auto revision = m_revision;
+	const auto target = m_config.value();
+	const auto revision = m_config.revision();
 	const auto page = m_page;
 	m_applying = true;
 	dispatch(
@@ -319,14 +304,12 @@ void GuiController::apply()
 		    const auto& commit = *result.commit;
 		    if (commit.saved)
 		    {
-			    m_draft = m_saved = m_latest;
-			    m_revision = m_latestRevision;
-			    m_conflict = false;
+			    m_config.revert();
 			    m_message = commit.applied ? "配置已保存并生效。" : "配置已保存，尚未应用。" + commit.error;
 		    }
 		    else
 		    {
-			    m_conflict |= commit.conflict;
+			    m_config.markConflict(commit.conflict);
 			    m_message = "保存失败：" + commit.error;
 		    }
 		    emit applyFinished(commit.saved, commit.applied);

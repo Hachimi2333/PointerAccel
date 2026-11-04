@@ -1,5 +1,6 @@
 #pragma once
 #include "state.hpp"
+#include "draft.hpp"
 #include <QObject>
 #include <QFileSystemWatcher>
 #include <QThread>
@@ -17,7 +18,7 @@ public:
 	~GuiController() override;
 	const Config& draft() const
 	{
-		return m_draft;
+		return m_config.value();
 	}
 	const QJsonObject& status() const
 	{
@@ -34,7 +35,7 @@ public:
 	}
 	bool dirty() const
 	{
-		return m_draft != m_saved;
+		return m_config.dirty();
 	}
 	bool busy() const
 	{
@@ -46,11 +47,11 @@ public:
 	}
 	bool valid() const
 	{
-		return m_ready && m_configError.isEmpty();
+		return m_config.valid();
 	}
 	bool conflict() const
 	{
-		return m_conflict;
+		return m_config.conflict();
 	}
 	QString message() const
 	{
@@ -58,7 +59,7 @@ public:
 	}
 	QString configError() const
 	{
-		return m_configError;
+		return m_config.error();
 	}
 	QString configFile() const;
 	Page page() const
@@ -90,13 +91,13 @@ private:
 	GuiWorker* m_worker;
 	QTimer m_poll, m_attributes;
 	QFileSystemWatcher m_files;
-	Config m_draft, m_saved, m_latest;
+	ConfigDraft m_config;
 	QJsonObject m_status, m_diagnostics;
 	QList<DeviceInfo> m_devices;
 	QString m_devicesError;
-	QString m_revision, m_latestRevision, m_configError, m_message;
+	QString m_message;
 	Page m_page = Page::Settings;
-	bool m_busy = false, m_applying = false, m_ready = false, m_conflict = false;
+	bool m_busy = false, m_applying = false;
 	bool m_pending = false, m_fullPending = false, m_polling = true;
 };
 }

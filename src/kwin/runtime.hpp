@@ -1,7 +1,8 @@
 #pragma once
 #include "config/config.hpp"
 #include "input/report.hpp"
-#include "devices.hpp"
+#include "input_session.hpp"
+#include "input_batch.hpp"
 #include "diagnostics.hpp"
 #include <QObject>
 #include <array>
@@ -11,7 +12,6 @@ class TestBackend;
 #endif
 namespace pa
 {
-class ZeroRawFilter;
 class PointerRuntime : public QObject
 {
 public:
@@ -33,7 +33,6 @@ public:
 	QString TestReports(const QString& payload);
 #endif
 private:
-	bool attach(Device& device);
 	bool deactivate();
 	void fail(const QString& message);
 	void apply();
@@ -42,16 +41,15 @@ private:
 	    std::chrono::microseconds time,
 	    KWin::InputDevice* source,
 	    const QString& sys);
-	std::array<PaReport, PA_REPORT_CAPACITY> reports{};
-	DeviceRegistry registry;
+	void replay(std::span<const PaReport> reports, std::span<Device*> mapped);
+	InputBatch batch;
+	InputSession session;
 	Config config;
 	PointerEngine engine;
 	std::optional<bool> temporary;
-	bool active = false, compatibility = false;
+	bool compatibility = false;
 	QString fault;
 	InputDiagnostics diagnostics;
-	bool replayingZero = false;
-	std::unique_ptr<ZeroRawFilter> zeroRaw;
 #ifdef PA_TESTING
 	TestBackend* testBackend = nullptr;
 #endif
