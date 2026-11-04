@@ -156,6 +156,11 @@ add_executable(pointeraccel-raw-x11 src/probes/raw_x11.cpp)
 target_link_libraries(pointeraccel-raw-x11 PRIVATE PkgConfig::XINPUT)
 
 if(BUILD_TESTING)
+  add_test(NAME frozen_sources COMMAND ${CMAKE_COMMAND} -DPA_SOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR}
+                                      -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/VerifyFrozen.cmake)
+  add_test(NAME input_equivalence COMMAND Python3::Interpreter ${CMAKE_CURRENT_SOURCE_DIR}/tests/input_equivalence_test.py
+                                         ${CMAKE_CURRENT_BINARY_DIR})
+  set_tests_properties(input_equivalence PROPERTIES TIMEOUT 60)
 
   add_library(pa_control_test_support STATIC ${PA_CONTROL_SOURCES})
   target_compile_definitions(pa_control_test_support PRIVATE PA_TESTING)

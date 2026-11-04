@@ -19,6 +19,8 @@ EXECUTABLE = Path('/usr/bin/kwin_wayland')
 LIBRARY = Path('/usr/lib64/libkwin.so.6')
 SOURCE_ITEMS = (
     'CMakeLists.txt',
+    'AGENTS.md',
+    'cmake',
     'README.md',
     'README.zh-CN.md',
     'LICENSE',

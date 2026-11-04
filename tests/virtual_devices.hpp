@@ -107,7 +107,9 @@ public:
 		    {"raw_y", e->deltaUnaccelerated.y()},
 		    {"device", e->device ? e->device->name() : QString()},
 		    {"time", static_cast<double>(e->timestamp.count())}});
+		positions.append(QJsonArray{e->position.x(), e->position.y()});
 	}
 
 	QJsonArray samples;
+	QJsonArray positions;
 };

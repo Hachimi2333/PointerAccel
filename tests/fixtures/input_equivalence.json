@@ -1,0 +1,3355 @@
+{
+  "source": "PointerAccel e73f4c6; observation-only test instrumentation added before production changes",
+  "environment": "KWin virtual backend; two 640x480 outputs at (0,0)/1x and (640,0)/2x; fixed synthetic timestamps",
+  "actions": [
+    {
+      "kind": "reset"
+    },
+    {
+      "kind": "reports",
+      "motions": [
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          1,
+          1,
+          1
+        ]
+      ],
+      "position": [
+        630,
+        100
+      ]
+    },
+    {
+      "kind": "reports",
+      "motions": [
+        [
+          0,
+          12,
+          0
+        ],
+        [
+          1,
+          30,
+          3
+        ],
+        [
+          0,
+          -3,
+          -2
+        ]
+      ]
+    },
+    {
+      "kind": "config",
+      "values": {
+        "pointer_speed": 1,
+        "enhance_pointer_precision": false
+      }
+    },
+    {
+      "kind": "reports",
+      "motions": [
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          1,
+          -1,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ]
+    },
+    {
+      "kind": "hotplug"
+    },
+    {
+      "kind": "reports",
+      "motions": [
+        [
+          1,
+          3,
+          -1
+        ],
+        [
+          0,
+          2,
+          2
+        ]
+      ]
+    },
+    {
+      "kind": "config",
+      "excluded": [
+        0
+      ]
+    },
+    {
+      "kind": "reports",
+      "motions": [
+        [
+          0,
+          2,
+          1
+        ],
+        [
+          1,
+          2,
+          1
+        ],
+        [
+          2,
+          0.25,
+          -0.5
+        ],
+        [
+          1,
+          0.25,
+          0.5
+        ]
+      ]
+    },
+    {
+      "kind": "config",
+      "excluded": [],
+      "values": {
+        "pointer_speed": 20,
+        "enhance_pointer_precision": true
+      }
+    },
+    {
+      "kind": "reports",
+      "motions": [
+        [
+          1,
+          40,
+          0
+        ],
+        [
+          0,
+          20,
+          1
+        ],
+        [
+          1,
+          -200,
+          0
+        ]
+      ],
+      "position": [
+        630,
+        120
+      ]
+    },
+    {
+      "kind": "temporary",
+      "enabled": false
+    },
+    {
+      "kind": "reports",
+      "motions": [
+        [
+          0,
+          4,
+          2
+        ],
+        [
+          1,
+          3,
+          2
+        ]
+      ]
+    },
+    {
+      "kind": "temporary",
+      "enabled": true
+    },
+    {
+      "kind": "reports",
+      "motions": [
+        [
+          0,
+          1,
+          1
+        ],
+        [
+          1,
+          -1,
+          -1
+        ]
+      ]
+    },
+    {
+      "kind": "config",
+      "values": {
+        "enabled": false
+      }
+    },
+    {
+      "kind": "reports",
+      "motions": [
+        [
+          0,
+          5,
+          1
+        ],
+        [
+          1,
+          7,
+          2
+        ]
+      ]
+    },
+    {
+      "kind": "config",
+      "values": {
+        "enabled": true
+      }
+    },
+    {
+      "kind": "reports",
+      "motions": [
+        [
+          0,
+          2,
+          1
+        ],
+        [
+          1,
+          -1,
+          2
+        ]
+      ]
+    },
+    {
+      "kind": "reports",
+      "motions": [
+        [
+          0,
+          1,
+          1
+        ],
+        [
+          1,
+          2,
+          1
+        ]
+      ],
+      "corrupt": true
+    },
+    {
+      "kind": "config"
+    },
+    {
+      "kind": "reports",
+      "motions": [
+        [
+          0,
+          1,
+          1
+        ],
+        [
+          1,
+          2,
+          1
+        ]
+      ],
+      "overflow": true
+    },
+    {
+      "kind": "config"
+    },
+    {
+      "kind": "reset"
+    },
+    {
+      "kind": "reports",
+      "motions": [
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          1,
+          1,
+          0
+        ]
+      ],
+      "position": [
+        650,
+        100
+      ]
+    }
+  ],
+  "observations": [
+    {
+      "step": 1,
+      "reports": [
+        {
+          "device": "pa-test-0",
+          "dx": 0,
+          "dy": 0,
+          "raw_x": 1,
+          "raw_y": 0,
+          "time": 1000125
+        },
+        {
+          "device": "pa-test-1",
+          "dx": 1,
+          "dy": 0,
+          "raw_x": 1,
+          "raw_y": 1,
+          "time": 1000250
+        }
+      ],
+      "positions": [
+        [
+          630,
+          100
+        ],
+        [
+          631,
+          100
+        ]
+      ],
+      "status": {
+        "active": true,
+        "healthy": true,
+        "temporary_override": false
+      },
+      "trace": [
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            0,
+            0
+          ],
+          "raw": [
+            1,
+            0
+          ],
+          "scale": 1,
+          "time_usec": 1000125
+        },
+        {
+          "device": "mouse-0f6b85f4867d082afa17826a",
+          "dpi": 96,
+          "output": [
+            1,
+            0
+          ],
+          "raw": [
+            1,
+            1
+          ],
+          "scale": 1,
+          "time_usec": 1000250
+        }
+      ]
+    },
+    {
+      "step": 2,
+      "reports": [
+        {
+          "device": "pa-test-0",
+          "dx": 10,
+          "dy": 0,
+          "raw_x": 12,
+          "raw_y": 0,
+          "time": 1000375
+        },
+        {
+          "device": "pa-test-1",
+          "dx": 48,
+          "dy": 5,
+          "raw_x": 30,
+          "raw_y": 3,
+          "time": 1000500
+        },
+        {
+          "device": "pa-test-0",
+          "dx": -1,
+          "dy": -1,
+          "raw_x": -3,
+          "raw_y": -2,
+          "time": 1000625
+        }
+      ],
+      "positions": [
+        [
+          639,
+          100
+        ],
+        [
+          639,
+          105
+        ],
+        [
+          638,
+          104
+        ]
+      ],
+      "status": {
+        "active": true,
+        "healthy": true,
+        "temporary_override": false
+      },
+      "trace": [
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            0,
+            0
+          ],
+          "raw": [
+            1,
+            0
+          ],
+          "scale": 1,
+          "time_usec": 1000125
+        },
+        {
+          "device": "mouse-0f6b85f4867d082afa17826a",
+          "dpi": 96,
+          "output": [
+            1,
+            0
+          ],
+          "raw": [
+            1,
+            1
+          ],
+          "scale": 1,
+          "time_usec": 1000250
+        },
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            10,
+            0
+          ],
+          "raw": [
+            12,
+            0
+          ],
+          "scale": 1,
+          "time_usec": 1000375
+        },
+        {
+          "device": "mouse-0f6b85f4867d082afa17826a",
+          "dpi": 96,
+          "output": [
+            48,
+            5
+          ],
+          "raw": [
+            30,
+            3
+          ],
+          "scale": 1,
+          "time_usec": 1000500
+        },
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            -1,
+            -1
+          ],
+          "raw": [
+            -3,
+            -2
+          ],
+          "scale": 1,
+          "time_usec": 1000625
+        }
+      ]
+    },
+    {
+      "step": 4,
+      "reports": [
+        {
+          "device": "pa-test-0",
+          "dx": 0,
+          "dy": 0,
+          "raw_x": 1,
+          "raw_y": 0,
+          "time": 1000750
+        },
+        {
+          "device": "pa-test-0",
+          "dx": 0,
+          "dy": 0,
+          "raw_x": 1,
+          "raw_y": 0,
+          "time": 1000875
+        },
+        {
+          "device": "pa-test-1",
+          "dx": 0,
+          "dy": 0,
+          "raw_x": -1,
+          "raw_y": 0,
+          "time": 1001000
+        },
+        {
+          "device": "pa-test-0",
+          "dx": 0,
+          "dy": 0,
+          "raw_x": 0,
+          "raw_y": 0,
+          "time": 1001125
+        }
+      ],
+      "positions": [
+        [
+          638,
+          104
+        ],
+        [
+          638,
+          104
+        ],
+        [
+          638,
+          104
+        ],
+        [
+          638,
+          104
+        ]
+      ],
+      "status": {
+        "active": true,
+        "healthy": true,
+        "temporary_override": false
+      },
+      "trace": [
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            0,
+            0
+          ],
+          "raw": [
+            1,
+            0
+          ],
+          "scale": 1,
+          "time_usec": 1000125
+        },
+        {
+          "device": "mouse-0f6b85f4867d082afa17826a",
+          "dpi": 96,
+          "output": [
+            1,
+            0
+          ],
+          "raw": [
+            1,
+            1
+          ],
+          "scale": 1,
+          "time_usec": 1000250
+        },
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            10,
+            0
+          ],
+          "raw": [
+            12,
+            0
+          ],
+          "scale": 1,
+          "time_usec": 1000375
+        },
+        {
+          "device": "mouse-0f6b85f4867d082afa17826a",
+          "dpi": 96,
+          "output": [
+            48,
+            5
+          ],
+          "raw": [
+            30,
+            3
+          ],
+          "scale": 1,
+          "time_usec": 1000500
+        },
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            -1,
+            -1
+          ],
+          "raw": [
+            -3,
+            -2
+          ],
+          "scale": 1,
+          "time_usec": 1000625
+        },
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            0,
+            0
+          ],
+          "raw": [
+            1,
+            0
+          ],
+          "scale": 1,
+          "time_usec": 1000750
+        },
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            0,
+            0
+          ],
+          "raw": [
+            1,
+            0
+          ],
+          "scale": 1,
+          "time_usec": 1000875
+        },
+        {
+          "device": "mouse-0f6b85f4867d082afa17826a",
+          "dpi": 96,
+          "output": [
+            0,
+            0
+          ],
+          "raw": [
+            -1,
+            0
+          ],
+          "scale": 1,
+          "time_usec": 1001000
+        },
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            0,
+            0
+          ],
+          "raw": [
+            0,
+            0
+          ],
+          "scale": 1,
+          "time_usec": 1001125
+        }
+      ]
+    },
+    {
+      "step": 6,
+      "reports": [
+        {
+          "device": "pa-test-1",
+          "dx": 0,
+          "dy": 0,
+          "raw_x": 3,
+          "raw_y": -1,
+          "time": 1001250
+        },
+        {
+          "device": "pa-test-0",
+          "dx": 0,
+          "dy": 0,
+          "raw_x": 2,
+          "raw_y": 2,
+          "time": 1001375
+        }
+      ],
+      "positions": [
+        [
+          638,
+          104
+        ],
+        [
+          638,
+          104
+        ]
+      ],
+      "status": {
+        "active": true,
+        "healthy": true,
+        "temporary_override": false
+      },
+      "trace": [
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            0,
+            0
+          ],
+          "raw": [
+            1,
+            0
+          ],
+          "scale": 1,
+          "time_usec": 1000125
+        },
+        {
+          "device": "mouse-0f6b85f4867d082afa17826a",
+          "dpi": 96,
+          "output": [
+            1,
+            0
+          ],
+          "raw": [
+            1,
+            1
+          ],
+          "scale": 1,
+          "time_usec": 1000250
+        },
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            10,
+            0
+          ],
+          "raw": [
+            12,
+            0
+          ],
+          "scale": 1,
+          "time_usec": 1000375
+        },
+        {
+          "device": "mouse-0f6b85f4867d082afa17826a",
+          "dpi": 96,
+          "output": [
+            48,
+            5
+          ],
+          "raw": [
+            30,
+            3
+          ],
+          "scale": 1,
+          "time_usec": 1000500
+        },
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            -1,
+            -1
+          ],
+          "raw": [
+            -3,
+            -2
+          ],
+          "scale": 1,
+          "time_usec": 1000625
+        },
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            0,
+            0
+          ],
+          "raw": [
+            1,
+            0
+          ],
+          "scale": 1,
+          "time_usec": 1000750
+        },
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            0,
+            0
+          ],
+          "raw": [
+            1,
+            0
+          ],
+          "scale": 1,
+          "time_usec": 1000875
+        },
+        {
+          "device": "mouse-0f6b85f4867d082afa17826a",
+          "dpi": 96,
+          "output": [
+            0,
+            0
+          ],
+          "raw": [
+            -1,
+            0
+          ],
+          "scale": 1,
+          "time_usec": 1001000
+        },
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            0,
+            0
+          ],
+          "raw": [
+            0,
+            0
+          ],
+          "scale": 1,
+          "time_usec": 1001125
+        },
+        {
+          "device": "mouse-0f6b85f4867d082afa17826a",
+          "dpi": 96,
+          "output": [
+            0,
+            0
+          ],
+          "raw": [
+            3,
+            -1
+          ],
+          "scale": 1,
+          "time_usec": 1001250
+        },
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            0,
+            0
+          ],
+          "raw": [
+            2,
+            2
+          ],
+          "scale": 1,
+          "time_usec": 1001375
+        }
+      ]
+    },
+    {
+      "step": 8,
+      "reports": [
+        {
+          "device": "pa-test-0",
+          "dx": 6.25,
+          "dy": 3.125,
+          "raw_x": 2,
+          "raw_y": 1,
+          "time": 1001500
+        },
+        {
+          "device": "pa-test-1",
+          "dx": 0,
+          "dy": 0,
+          "raw_x": 2,
+          "raw_y": 1,
+          "time": 1001625
+        },
+        {
+          "device": "pa-test-2",
+          "dx": 0.78125,
+          "dy": -1.5625,
+          "raw_x": 0.25,
+          "raw_y": -0.5,
+          "time": 1001750
+        },
+        {
+          "device": "pa-test-1",
+          "dx": 0.78125,
+          "dy": 1.5625,
+          "raw_x": 0.25,
+          "raw_y": 0.5,
+          "time": 1001875
+        }
+      ],
+      "positions": [
+        [
+          639,
+          107.125
+        ],
+        [
+          639,
+          107.125
+        ],
+        [
+          639,
+          105.5625
+        ],
+        [
+          639,
+          107.125
+        ]
+      ],
+      "status": {
+        "active": true,
+        "healthy": true,
+        "temporary_override": false
+      },
+      "trace": [
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            0,
+            0
+          ],
+          "raw": [
+            1,
+            0
+          ],
+          "scale": 1,
+          "time_usec": 1000125
+        },
+        {
+          "device": "mouse-0f6b85f4867d082afa17826a",
+          "dpi": 96,
+          "output": [
+            1,
+            0
+          ],
+          "raw": [
+            1,
+            1
+          ],
+          "scale": 1,
+          "time_usec": 1000250
+        },
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            10,
+            0
+          ],
+          "raw": [
+            12,
+            0
+          ],
+          "scale": 1,
+          "time_usec": 1000375
+        },
+        {
+          "device": "mouse-0f6b85f4867d082afa17826a",
+          "dpi": 96,
+          "output": [
+            48,
+            5
+          ],
+          "raw": [
+            30,
+            3
+          ],
+          "scale": 1,
+          "time_usec": 1000500
+        },
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            -1,
+            -1
+          ],
+          "raw": [
+            -3,
+            -2
+          ],
+          "scale": 1,
+          "time_usec": 1000625
+        },
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            0,
+            0
+          ],
+          "raw": [
+            1,
+            0
+          ],
+          "scale": 1,
+          "time_usec": 1000750
+        },
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            0,
+            0
+          ],
+          "raw": [
+            1,
+            0
+          ],
+          "scale": 1,
+          "time_usec": 1000875
+        },
+        {
+          "device": "mouse-0f6b85f4867d082afa17826a",
+          "dpi": 96,
+          "output": [
+            0,
+            0
+          ],
+          "raw": [
+            -1,
+            0
+          ],
+          "scale": 1,
+          "time_usec": 1001000
+        },
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            0,
+            0
+          ],
+          "raw": [
+            0,
+            0
+          ],
+          "scale": 1,
+          "time_usec": 1001125
+        },
+        {
+          "device": "mouse-0f6b85f4867d082afa17826a",
+          "dpi": 96,
+          "output": [
+            0,
+            0
+          ],
+          "raw": [
+            3,
+            -1
+          ],
+          "scale": 1,
+          "time_usec": 1001250
+        },
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            0,
+            0
+          ],
+          "raw": [
+            2,
+            2
+          ],
+          "scale": 1,
+          "time_usec": 1001375
+        },
+        {
+          "device": "mouse-0f6b85f4867d082afa17826a",
+          "dpi": 96,
+          "output": [
+            0,
+            0
+          ],
+          "raw": [
+            2,
+            1
+          ],
+          "scale": 1,
+          "time_usec": 1001625
+        }
+      ]
+    },
+    {
+      "step": 10,
+      "reports": [
+        {
+          "device": "pa-test-1",
+          "dx": 119,
+          "dy": 0,
+          "raw_x": 40,
+          "raw_y": 0,
+          "time": 1002000
+        },
+        {
+          "device": "pa-test-0",
+          "dx": 133,
+          "dy": 6,
+          "raw_x": 20,
+          "raw_y": 1,
+          "time": 1002125
+        },
+        {
+          "device": "pa-test-1",
+          "dx": -2064,
+          "dy": 0,
+          "raw_x": -200,
+          "raw_y": 0,
+          "time": 1002250
+        }
+      ],
+      "positions": [
+        [
+          649,
+          120
+        ],
+        [
+          782,
+          126
+        ],
+        [
+          100,
+          126
+        ]
+      ],
+      "status": {
+        "active": true,
+        "healthy": true,
+        "temporary_override": false
+      },
+      "trace": [
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            0,
+            0
+          ],
+          "raw": [
+            1,
+            0
+          ],
+          "scale": 1,
+          "time_usec": 1000125
+        },
+        {
+          "device": "mouse-0f6b85f4867d082afa17826a",
+          "dpi": 96,
+          "output": [
+            1,
+            0
+          ],
+          "raw": [
+            1,
+            1
+          ],
+          "scale": 1,
+          "time_usec": 1000250
+        },
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            10,
+            0
+          ],
+          "raw": [
+            12,
+            0
+          ],
+          "scale": 1,
+          "time_usec": 1000375
+        },
+        {
+          "device": "mouse-0f6b85f4867d082afa17826a",
+          "dpi": 96,
+          "output": [
+            48,
+            5
+          ],
+          "raw": [
+            30,
+            3
+          ],
+          "scale": 1,
+          "time_usec": 1000500
+        },
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            -1,
+            -1
+          ],
+          "raw": [
+            -3,
+            -2
+          ],
+          "scale": 1,
+          "time_usec": 1000625
+        },
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            0,
+            0
+          ],
+          "raw": [
+            1,
+            0
+          ],
+          "scale": 1,
+          "time_usec": 1000750
+        },
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            0,
+            0
+          ],
+          "raw": [
+            1,
+            0
+          ],
+          "scale": 1,
+          "time_usec": 1000875
+        },
+        {
+          "device": "mouse-0f6b85f4867d082afa17826a",
+          "dpi": 96,
+          "output": [
+            0,
+            0
+          ],
+          "raw": [
+            -1,
+            0
+          ],
+          "scale": 1,
+          "time_usec": 1001000
+        },
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            0,
+            0
+          ],
+          "raw": [
+            0,
+            0
+          ],
+          "scale": 1,
+          "time_usec": 1001125
+        },
+        {
+          "device": "mouse-0f6b85f4867d082afa17826a",
+          "dpi": 96,
+          "output": [
+            0,
+            0
+          ],
+          "raw": [
+            3,
+            -1
+          ],
+          "scale": 1,
+          "time_usec": 1001250
+        },
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            0,
+            0
+          ],
+          "raw": [
+            2,
+            2
+          ],
+          "scale": 1,
+          "time_usec": 1001375
+        },
+        {
+          "device": "mouse-0f6b85f4867d082afa17826a",
+          "dpi": 96,
+          "output": [
+            0,
+            0
+          ],
+          "raw": [
+            2,
+            1
+          ],
+          "scale": 1,
+          "time_usec": 1001625
+        },
+        {
+          "device": "mouse-0f6b85f4867d082afa17826a",
+          "dpi": 96,
+          "output": [
+            119,
+            0
+          ],
+          "raw": [
+            40,
+            0
+          ],
+          "scale": 1,
+          "time_usec": 1002000
+        },
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 192,
+          "output": [
+            133,
+            6
+          ],
+          "raw": [
+            20,
+            1
+          ],
+          "scale": 2,
+          "time_usec": 1002125
+        },
+        {
+          "device": "mouse-0f6b85f4867d082afa17826a",
+          "dpi": 192,
+          "output": [
+            -2064,
+            0
+          ],
+          "raw": [
+            -200,
+            0
+          ],
+          "scale": 2,
+          "time_usec": 1002250
+        }
+      ]
+    },
+    {
+      "step": 12,
+      "reports": [
+        {
+          "device": "pa-test-0",
+          "dx": 21.875,
+          "dy": 12.5,
+          "raw_x": 7,
+          "raw_y": 4,
+          "time": 1002500
+        }
+      ],
+      "positions": [
+        [
+          121.875,
+          138.5
+        ]
+      ],
+      "status": {
+        "active": false,
+        "healthy": true,
+        "temporary_override": true
+      },
+      "trace": [
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            0,
+            0
+          ],
+          "raw": [
+            1,
+            0
+          ],
+          "scale": 1,
+          "time_usec": 1000125
+        },
+        {
+          "device": "mouse-0f6b85f4867d082afa17826a",
+          "dpi": 96,
+          "output": [
+            1,
+            0
+          ],
+          "raw": [
+            1,
+            1
+          ],
+          "scale": 1,
+          "time_usec": 1000250
+        },
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            10,
+            0
+          ],
+          "raw": [
+            12,
+            0
+          ],
+          "scale": 1,
+          "time_usec": 1000375
+        },
+        {
+          "device": "mouse-0f6b85f4867d082afa17826a",
+          "dpi": 96,
+          "output": [
+            48,
+            5
+          ],
+          "raw": [
+            30,
+            3
+          ],
+          "scale": 1,
+          "time_usec": 1000500
+        },
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            -1,
+            -1
+          ],
+          "raw": [
+            -3,
+            -2
+          ],
+          "scale": 1,
+          "time_usec": 1000625
+        },
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            0,
+            0
+          ],
+          "raw": [
+            1,
+            0
+          ],
+          "scale": 1,
+          "time_usec": 1000750
+        },
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            0,
+            0
+          ],
+          "raw": [
+            1,
+            0
+          ],
+          "scale": 1,
+          "time_usec": 1000875
+        },
+        {
+          "device": "mouse-0f6b85f4867d082afa17826a",
+          "dpi": 96,
+          "output": [
+            0,
+            0
+          ],
+          "raw": [
+            -1,
+            0
+          ],
+          "scale": 1,
+          "time_usec": 1001000
+        },
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            0,
+            0
+          ],
+          "raw": [
+            0,
+            0
+          ],
+          "scale": 1,
+          "time_usec": 1001125
+        },
+        {
+          "device": "mouse-0f6b85f4867d082afa17826a",
+          "dpi": 96,
+          "output": [
+            0,
+            0
+          ],
+          "raw": [
+            3,
+            -1
+          ],
+          "scale": 1,
+          "time_usec": 1001250
+        },
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            0,
+            0
+          ],
+          "raw": [
+            2,
+            2
+          ],
+          "scale": 1,
+          "time_usec": 1001375
+        },
+        {
+          "device": "mouse-0f6b85f4867d082afa17826a",
+          "dpi": 96,
+          "output": [
+            0,
+            0
+          ],
+          "raw": [
+            2,
+            1
+          ],
+          "scale": 1,
+          "time_usec": 1001625
+        },
+        {
+          "device": "mouse-0f6b85f4867d082afa17826a",
+          "dpi": 96,
+          "output": [
+            119,
+            0
+          ],
+          "raw": [
+            40,
+            0
+          ],
+          "scale": 1,
+          "time_usec": 1002000
+        },
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 192,
+          "output": [
+            133,
+            6
+          ],
+          "raw": [
+            20,
+            1
+          ],
+          "scale": 2,
+          "time_usec": 1002125
+        },
+        {
+          "device": "mouse-0f6b85f4867d082afa17826a",
+          "dpi": 192,
+          "output": [
+            -2064,
+            0
+          ],
+          "raw": [
+            -200,
+            0
+          ],
+          "scale": 2,
+          "time_usec": 1002250
+        }
+      ]
+    },
+    {
+      "step": 14,
+      "reports": [
+        {
+          "device": "pa-test-0",
+          "dx": 1,
+          "dy": 1,
+          "raw_x": 1,
+          "raw_y": 1,
+          "time": 1002625
+        },
+        {
+          "device": "pa-test-1",
+          "dx": -1,
+          "dy": -1,
+          "raw_x": -1,
+          "raw_y": -1,
+          "time": 1002750
+        }
+      ],
+      "positions": [
+        [
+          122.875,
+          139.5
+        ],
+        [
+          121.875,
+          138.5
+        ]
+      ],
+      "status": {
+        "active": true,
+        "healthy": true,
+        "temporary_override": true
+      },
+      "trace": [
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            0,
+            0
+          ],
+          "raw": [
+            1,
+            0
+          ],
+          "scale": 1,
+          "time_usec": 1000125
+        },
+        {
+          "device": "mouse-0f6b85f4867d082afa17826a",
+          "dpi": 96,
+          "output": [
+            1,
+            0
+          ],
+          "raw": [
+            1,
+            1
+          ],
+          "scale": 1,
+          "time_usec": 1000250
+        },
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            10,
+            0
+          ],
+          "raw": [
+            12,
+            0
+          ],
+          "scale": 1,
+          "time_usec": 1000375
+        },
+        {
+          "device": "mouse-0f6b85f4867d082afa17826a",
+          "dpi": 96,
+          "output": [
+            48,
+            5
+          ],
+          "raw": [
+            30,
+            3
+          ],
+          "scale": 1,
+          "time_usec": 1000500
+        },
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            -1,
+            -1
+          ],
+          "raw": [
+            -3,
+            -2
+          ],
+          "scale": 1,
+          "time_usec": 1000625
+        },
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            0,
+            0
+          ],
+          "raw": [
+            1,
+            0
+          ],
+          "scale": 1,
+          "time_usec": 1000750
+        },
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            0,
+            0
+          ],
+          "raw": [
+            1,
+            0
+          ],
+          "scale": 1,
+          "time_usec": 1000875
+        },
+        {
+          "device": "mouse-0f6b85f4867d082afa17826a",
+          "dpi": 96,
+          "output": [
+            0,
+            0
+          ],
+          "raw": [
+            -1,
+            0
+          ],
+          "scale": 1,
+          "time_usec": 1001000
+        },
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            0,
+            0
+          ],
+          "raw": [
+            0,
+            0
+          ],
+          "scale": 1,
+          "time_usec": 1001125
+        },
+        {
+          "device": "mouse-0f6b85f4867d082afa17826a",
+          "dpi": 96,
+          "output": [
+            0,
+            0
+          ],
+          "raw": [
+            3,
+            -1
+          ],
+          "scale": 1,
+          "time_usec": 1001250
+        },
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            0,
+            0
+          ],
+          "raw": [
+            2,
+            2
+          ],
+          "scale": 1,
+          "time_usec": 1001375
+        },
+        {
+          "device": "mouse-0f6b85f4867d082afa17826a",
+          "dpi": 96,
+          "output": [
+            0,
+            0
+          ],
+          "raw": [
+            2,
+            1
+          ],
+          "scale": 1,
+          "time_usec": 1001625
+        },
+        {
+          "device": "mouse-0f6b85f4867d082afa17826a",
+          "dpi": 96,
+          "output": [
+            119,
+            0
+          ],
+          "raw": [
+            40,
+            0
+          ],
+          "scale": 1,
+          "time_usec": 1002000
+        },
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 192,
+          "output": [
+            133,
+            6
+          ],
+          "raw": [
+            20,
+            1
+          ],
+          "scale": 2,
+          "time_usec": 1002125
+        },
+        {
+          "device": "mouse-0f6b85f4867d082afa17826a",
+          "dpi": 192,
+          "output": [
+            -2064,
+            0
+          ],
+          "raw": [
+            -200,
+            0
+          ],
+          "scale": 2,
+          "time_usec": 1002250
+        },
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            1,
+            1
+          ],
+          "raw": [
+            1,
+            1
+          ],
+          "scale": 1,
+          "time_usec": 1002625
+        },
+        {
+          "device": "mouse-0f6b85f4867d082afa17826a",
+          "dpi": 96,
+          "output": [
+            -1,
+            -1
+          ],
+          "raw": [
+            -1,
+            -1
+          ],
+          "scale": 1,
+          "time_usec": 1002750
+        }
+      ]
+    },
+    {
+      "step": 16,
+      "reports": [
+        {
+          "device": "pa-test-0",
+          "dx": 37.5,
+          "dy": 9.375,
+          "raw_x": 12,
+          "raw_y": 3,
+          "time": 1003000
+        }
+      ],
+      "positions": [
+        [
+          159.375,
+          147.875
+        ]
+      ],
+      "status": {
+        "active": false,
+        "healthy": true,
+        "temporary_override": false
+      },
+      "trace": [
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            0,
+            0
+          ],
+          "raw": [
+            1,
+            0
+          ],
+          "scale": 1,
+          "time_usec": 1000125
+        },
+        {
+          "device": "mouse-0f6b85f4867d082afa17826a",
+          "dpi": 96,
+          "output": [
+            1,
+            0
+          ],
+          "raw": [
+            1,
+            1
+          ],
+          "scale": 1,
+          "time_usec": 1000250
+        },
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            10,
+            0
+          ],
+          "raw": [
+            12,
+            0
+          ],
+          "scale": 1,
+          "time_usec": 1000375
+        },
+        {
+          "device": "mouse-0f6b85f4867d082afa17826a",
+          "dpi": 96,
+          "output": [
+            48,
+            5
+          ],
+          "raw": [
+            30,
+            3
+          ],
+          "scale": 1,
+          "time_usec": 1000500
+        },
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            -1,
+            -1
+          ],
+          "raw": [
+            -3,
+            -2
+          ],
+          "scale": 1,
+          "time_usec": 1000625
+        },
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            0,
+            0
+          ],
+          "raw": [
+            1,
+            0
+          ],
+          "scale": 1,
+          "time_usec": 1000750
+        },
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            0,
+            0
+          ],
+          "raw": [
+            1,
+            0
+          ],
+          "scale": 1,
+          "time_usec": 1000875
+        },
+        {
+          "device": "mouse-0f6b85f4867d082afa17826a",
+          "dpi": 96,
+          "output": [
+            0,
+            0
+          ],
+          "raw": [
+            -1,
+            0
+          ],
+          "scale": 1,
+          "time_usec": 1001000
+        },
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            0,
+            0
+          ],
+          "raw": [
+            0,
+            0
+          ],
+          "scale": 1,
+          "time_usec": 1001125
+        },
+        {
+          "device": "mouse-0f6b85f4867d082afa17826a",
+          "dpi": 96,
+          "output": [
+            0,
+            0
+          ],
+          "raw": [
+            3,
+            -1
+          ],
+          "scale": 1,
+          "time_usec": 1001250
+        },
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            0,
+            0
+          ],
+          "raw": [
+            2,
+            2
+          ],
+          "scale": 1,
+          "time_usec": 1001375
+        },
+        {
+          "device": "mouse-0f6b85f4867d082afa17826a",
+          "dpi": 96,
+          "output": [
+            0,
+            0
+          ],
+          "raw": [
+            2,
+            1
+          ],
+          "scale": 1,
+          "time_usec": 1001625
+        },
+        {
+          "device": "mouse-0f6b85f4867d082afa17826a",
+          "dpi": 96,
+          "output": [
+            119,
+            0
+          ],
+          "raw": [
+            40,
+            0
+          ],
+          "scale": 1,
+          "time_usec": 1002000
+        },
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 192,
+          "output": [
+            133,
+            6
+          ],
+          "raw": [
+            20,
+            1
+          ],
+          "scale": 2,
+          "time_usec": 1002125
+        },
+        {
+          "device": "mouse-0f6b85f4867d082afa17826a",
+          "dpi": 192,
+          "output": [
+            -2064,
+            0
+          ],
+          "raw": [
+            -200,
+            0
+          ],
+          "scale": 2,
+          "time_usec": 1002250
+        },
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            1,
+            1
+          ],
+          "raw": [
+            1,
+            1
+          ],
+          "scale": 1,
+          "time_usec": 1002625
+        },
+        {
+          "device": "mouse-0f6b85f4867d082afa17826a",
+          "dpi": 96,
+          "output": [
+            -1,
+            -1
+          ],
+          "raw": [
+            -1,
+            -1
+          ],
+          "scale": 1,
+          "time_usec": 1002750
+        }
+      ]
+    },
+    {
+      "step": 18,
+      "reports": [
+        {
+          "device": "pa-test-0",
+          "dx": 2,
+          "dy": 1,
+          "raw_x": 2,
+          "raw_y": 1,
+          "time": 1003125
+        },
+        {
+          "device": "pa-test-1",
+          "dx": 0,
+          "dy": 2,
+          "raw_x": -1,
+          "raw_y": 2,
+          "time": 1003250
+        }
+      ],
+      "positions": [
+        [
+          161.375,
+          148.875
+        ],
+        [
+          161.375,
+          150.875
+        ]
+      ],
+      "status": {
+        "active": true,
+        "healthy": true,
+        "temporary_override": false
+      },
+      "trace": [
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            0,
+            0
+          ],
+          "raw": [
+            1,
+            0
+          ],
+          "scale": 1,
+          "time_usec": 1000125
+        },
+        {
+          "device": "mouse-0f6b85f4867d082afa17826a",
+          "dpi": 96,
+          "output": [
+            1,
+            0
+          ],
+          "raw": [
+            1,
+            1
+          ],
+          "scale": 1,
+          "time_usec": 1000250
+        },
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            10,
+            0
+          ],
+          "raw": [
+            12,
+            0
+          ],
+          "scale": 1,
+          "time_usec": 1000375
+        },
+        {
+          "device": "mouse-0f6b85f4867d082afa17826a",
+          "dpi": 96,
+          "output": [
+            48,
+            5
+          ],
+          "raw": [
+            30,
+            3
+          ],
+          "scale": 1,
+          "time_usec": 1000500
+        },
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            -1,
+            -1
+          ],
+          "raw": [
+            -3,
+            -2
+          ],
+          "scale": 1,
+          "time_usec": 1000625
+        },
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            0,
+            0
+          ],
+          "raw": [
+            1,
+            0
+          ],
+          "scale": 1,
+          "time_usec": 1000750
+        },
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            0,
+            0
+          ],
+          "raw": [
+            1,
+            0
+          ],
+          "scale": 1,
+          "time_usec": 1000875
+        },
+        {
+          "device": "mouse-0f6b85f4867d082afa17826a",
+          "dpi": 96,
+          "output": [
+            0,
+            0
+          ],
+          "raw": [
+            -1,
+            0
+          ],
+          "scale": 1,
+          "time_usec": 1001000
+        },
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            0,
+            0
+          ],
+          "raw": [
+            0,
+            0
+          ],
+          "scale": 1,
+          "time_usec": 1001125
+        },
+        {
+          "device": "mouse-0f6b85f4867d082afa17826a",
+          "dpi": 96,
+          "output": [
+            0,
+            0
+          ],
+          "raw": [
+            3,
+            -1
+          ],
+          "scale": 1,
+          "time_usec": 1001250
+        },
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            0,
+            0
+          ],
+          "raw": [
+            2,
+            2
+          ],
+          "scale": 1,
+          "time_usec": 1001375
+        },
+        {
+          "device": "mouse-0f6b85f4867d082afa17826a",
+          "dpi": 96,
+          "output": [
+            0,
+            0
+          ],
+          "raw": [
+            2,
+            1
+          ],
+          "scale": 1,
+          "time_usec": 1001625
+        },
+        {
+          "device": "mouse-0f6b85f4867d082afa17826a",
+          "dpi": 96,
+          "output": [
+            119,
+            0
+          ],
+          "raw": [
+            40,
+            0
+          ],
+          "scale": 1,
+          "time_usec": 1002000
+        },
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 192,
+          "output": [
+            133,
+            6
+          ],
+          "raw": [
+            20,
+            1
+          ],
+          "scale": 2,
+          "time_usec": 1002125
+        },
+        {
+          "device": "mouse-0f6b85f4867d082afa17826a",
+          "dpi": 192,
+          "output": [
+            -2064,
+            0
+          ],
+          "raw": [
+            -200,
+            0
+          ],
+          "scale": 2,
+          "time_usec": 1002250
+        },
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            1,
+            1
+          ],
+          "raw": [
+            1,
+            1
+          ],
+          "scale": 1,
+          "time_usec": 1002625
+        },
+        {
+          "device": "mouse-0f6b85f4867d082afa17826a",
+          "dpi": 96,
+          "output": [
+            -1,
+            -1
+          ],
+          "raw": [
+            -1,
+            -1
+          ],
+          "scale": 1,
+          "time_usec": 1002750
+        },
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            2,
+            1
+          ],
+          "raw": [
+            2,
+            1
+          ],
+          "scale": 1,
+          "time_usec": 1003125
+        },
+        {
+          "device": "mouse-0f6b85f4867d082afa17826a",
+          "dpi": 96,
+          "output": [
+            0,
+            2
+          ],
+          "raw": [
+            -1,
+            2
+          ],
+          "scale": 1,
+          "time_usec": 1003250
+        }
+      ]
+    },
+    {
+      "step": 19,
+      "reports": [
+        {
+          "device": "pa-test-0",
+          "dx": 9.375,
+          "dy": 6.25,
+          "raw_x": 4,
+          "raw_y": 2,
+          "time": 1003500
+        }
+      ],
+      "positions": [
+        [
+          170.75,
+          157.125
+        ]
+      ],
+      "status": {
+        "active": false,
+        "healthy": false,
+        "temporary_override": false
+      },
+      "trace": [
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            0,
+            0
+          ],
+          "raw": [
+            1,
+            0
+          ],
+          "scale": 1,
+          "time_usec": 1000125
+        },
+        {
+          "device": "mouse-0f6b85f4867d082afa17826a",
+          "dpi": 96,
+          "output": [
+            1,
+            0
+          ],
+          "raw": [
+            1,
+            1
+          ],
+          "scale": 1,
+          "time_usec": 1000250
+        },
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            10,
+            0
+          ],
+          "raw": [
+            12,
+            0
+          ],
+          "scale": 1,
+          "time_usec": 1000375
+        },
+        {
+          "device": "mouse-0f6b85f4867d082afa17826a",
+          "dpi": 96,
+          "output": [
+            48,
+            5
+          ],
+          "raw": [
+            30,
+            3
+          ],
+          "scale": 1,
+          "time_usec": 1000500
+        },
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            -1,
+            -1
+          ],
+          "raw": [
+            -3,
+            -2
+          ],
+          "scale": 1,
+          "time_usec": 1000625
+        },
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            0,
+            0
+          ],
+          "raw": [
+            1,
+            0
+          ],
+          "scale": 1,
+          "time_usec": 1000750
+        },
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            0,
+            0
+          ],
+          "raw": [
+            1,
+            0
+          ],
+          "scale": 1,
+          "time_usec": 1000875
+        },
+        {
+          "device": "mouse-0f6b85f4867d082afa17826a",
+          "dpi": 96,
+          "output": [
+            0,
+            0
+          ],
+          "raw": [
+            -1,
+            0
+          ],
+          "scale": 1,
+          "time_usec": 1001000
+        },
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            0,
+            0
+          ],
+          "raw": [
+            0,
+            0
+          ],
+          "scale": 1,
+          "time_usec": 1001125
+        },
+        {
+          "device": "mouse-0f6b85f4867d082afa17826a",
+          "dpi": 96,
+          "output": [
+            0,
+            0
+          ],
+          "raw": [
+            3,
+            -1
+          ],
+          "scale": 1,
+          "time_usec": 1001250
+        },
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            0,
+            0
+          ],
+          "raw": [
+            2,
+            2
+          ],
+          "scale": 1,
+          "time_usec": 1001375
+        },
+        {
+          "device": "mouse-0f6b85f4867d082afa17826a",
+          "dpi": 96,
+          "output": [
+            0,
+            0
+          ],
+          "raw": [
+            2,
+            1
+          ],
+          "scale": 1,
+          "time_usec": 1001625
+        },
+        {
+          "device": "mouse-0f6b85f4867d082afa17826a",
+          "dpi": 96,
+          "output": [
+            119,
+            0
+          ],
+          "raw": [
+            40,
+            0
+          ],
+          "scale": 1,
+          "time_usec": 1002000
+        },
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 192,
+          "output": [
+            133,
+            6
+          ],
+          "raw": [
+            20,
+            1
+          ],
+          "scale": 2,
+          "time_usec": 1002125
+        },
+        {
+          "device": "mouse-0f6b85f4867d082afa17826a",
+          "dpi": 192,
+          "output": [
+            -2064,
+            0
+          ],
+          "raw": [
+            -200,
+            0
+          ],
+          "scale": 2,
+          "time_usec": 1002250
+        },
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            1,
+            1
+          ],
+          "raw": [
+            1,
+            1
+          ],
+          "scale": 1,
+          "time_usec": 1002625
+        },
+        {
+          "device": "mouse-0f6b85f4867d082afa17826a",
+          "dpi": 96,
+          "output": [
+            -1,
+            -1
+          ],
+          "raw": [
+            -1,
+            -1
+          ],
+          "scale": 1,
+          "time_usec": 1002750
+        },
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            2,
+            1
+          ],
+          "raw": [
+            2,
+            1
+          ],
+          "scale": 1,
+          "time_usec": 1003125
+        },
+        {
+          "device": "mouse-0f6b85f4867d082afa17826a",
+          "dpi": 96,
+          "output": [
+            0,
+            2
+          ],
+          "raw": [
+            -1,
+            2
+          ],
+          "scale": 1,
+          "time_usec": 1003250
+        }
+      ]
+    },
+    {
+      "step": 21,
+      "reports": [
+        {
+          "device": "pa-test-0",
+          "dx": 9.375,
+          "dy": 6.25,
+          "raw_x": 3,
+          "raw_y": 2,
+          "time": 1003750
+        }
+      ],
+      "positions": [
+        [
+          180.125,
+          163.375
+        ]
+      ],
+      "status": {
+        "active": false,
+        "healthy": false,
+        "temporary_override": false
+      },
+      "trace": [
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            0,
+            0
+          ],
+          "raw": [
+            1,
+            0
+          ],
+          "scale": 1,
+          "time_usec": 1000125
+        },
+        {
+          "device": "mouse-0f6b85f4867d082afa17826a",
+          "dpi": 96,
+          "output": [
+            1,
+            0
+          ],
+          "raw": [
+            1,
+            1
+          ],
+          "scale": 1,
+          "time_usec": 1000250
+        },
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            10,
+            0
+          ],
+          "raw": [
+            12,
+            0
+          ],
+          "scale": 1,
+          "time_usec": 1000375
+        },
+        {
+          "device": "mouse-0f6b85f4867d082afa17826a",
+          "dpi": 96,
+          "output": [
+            48,
+            5
+          ],
+          "raw": [
+            30,
+            3
+          ],
+          "scale": 1,
+          "time_usec": 1000500
+        },
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            -1,
+            -1
+          ],
+          "raw": [
+            -3,
+            -2
+          ],
+          "scale": 1,
+          "time_usec": 1000625
+        },
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            0,
+            0
+          ],
+          "raw": [
+            1,
+            0
+          ],
+          "scale": 1,
+          "time_usec": 1000750
+        },
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            0,
+            0
+          ],
+          "raw": [
+            1,
+            0
+          ],
+          "scale": 1,
+          "time_usec": 1000875
+        },
+        {
+          "device": "mouse-0f6b85f4867d082afa17826a",
+          "dpi": 96,
+          "output": [
+            0,
+            0
+          ],
+          "raw": [
+            -1,
+            0
+          ],
+          "scale": 1,
+          "time_usec": 1001000
+        },
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            0,
+            0
+          ],
+          "raw": [
+            0,
+            0
+          ],
+          "scale": 1,
+          "time_usec": 1001125
+        },
+        {
+          "device": "mouse-0f6b85f4867d082afa17826a",
+          "dpi": 96,
+          "output": [
+            0,
+            0
+          ],
+          "raw": [
+            3,
+            -1
+          ],
+          "scale": 1,
+          "time_usec": 1001250
+        },
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            0,
+            0
+          ],
+          "raw": [
+            2,
+            2
+          ],
+          "scale": 1,
+          "time_usec": 1001375
+        },
+        {
+          "device": "mouse-0f6b85f4867d082afa17826a",
+          "dpi": 96,
+          "output": [
+            0,
+            0
+          ],
+          "raw": [
+            2,
+            1
+          ],
+          "scale": 1,
+          "time_usec": 1001625
+        },
+        {
+          "device": "mouse-0f6b85f4867d082afa17826a",
+          "dpi": 96,
+          "output": [
+            119,
+            0
+          ],
+          "raw": [
+            40,
+            0
+          ],
+          "scale": 1,
+          "time_usec": 1002000
+        },
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 192,
+          "output": [
+            133,
+            6
+          ],
+          "raw": [
+            20,
+            1
+          ],
+          "scale": 2,
+          "time_usec": 1002125
+        },
+        {
+          "device": "mouse-0f6b85f4867d082afa17826a",
+          "dpi": 192,
+          "output": [
+            -2064,
+            0
+          ],
+          "raw": [
+            -200,
+            0
+          ],
+          "scale": 2,
+          "time_usec": 1002250
+        },
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            1,
+            1
+          ],
+          "raw": [
+            1,
+            1
+          ],
+          "scale": 1,
+          "time_usec": 1002625
+        },
+        {
+          "device": "mouse-0f6b85f4867d082afa17826a",
+          "dpi": 96,
+          "output": [
+            -1,
+            -1
+          ],
+          "raw": [
+            -1,
+            -1
+          ],
+          "scale": 1,
+          "time_usec": 1002750
+        },
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            2,
+            1
+          ],
+          "raw": [
+            2,
+            1
+          ],
+          "scale": 1,
+          "time_usec": 1003125
+        },
+        {
+          "device": "mouse-0f6b85f4867d082afa17826a",
+          "dpi": 96,
+          "output": [
+            0,
+            2
+          ],
+          "raw": [
+            -1,
+            2
+          ],
+          "scale": 1,
+          "time_usec": 1003250
+        }
+      ]
+    },
+    {
+      "step": 24,
+      "reports": [
+        {
+          "device": "pa-test-0",
+          "dx": 2,
+          "dy": 0,
+          "raw_x": 1,
+          "raw_y": 0,
+          "time": 1003875
+        },
+        {
+          "device": "pa-test-1",
+          "dx": 2,
+          "dy": 0,
+          "raw_x": 1,
+          "raw_y": 0,
+          "time": 1004000
+        }
+      ],
+      "positions": [
+        [
+          652,
+          100
+        ],
+        [
+          654,
+          100
+        ]
+      ],
+      "status": {
+        "active": true,
+        "healthy": true,
+        "temporary_override": false
+      },
+      "trace": [
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            0,
+            0
+          ],
+          "raw": [
+            1,
+            0
+          ],
+          "scale": 1,
+          "time_usec": 1000125
+        },
+        {
+          "device": "mouse-0f6b85f4867d082afa17826a",
+          "dpi": 96,
+          "output": [
+            1,
+            0
+          ],
+          "raw": [
+            1,
+            1
+          ],
+          "scale": 1,
+          "time_usec": 1000250
+        },
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            10,
+            0
+          ],
+          "raw": [
+            12,
+            0
+          ],
+          "scale": 1,
+          "time_usec": 1000375
+        },
+        {
+          "device": "mouse-0f6b85f4867d082afa17826a",
+          "dpi": 96,
+          "output": [
+            48,
+            5
+          ],
+          "raw": [
+            30,
+            3
+          ],
+          "scale": 1,
+          "time_usec": 1000500
+        },
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            -1,
+            -1
+          ],
+          "raw": [
+            -3,
+            -2
+          ],
+          "scale": 1,
+          "time_usec": 1000625
+        },
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            0,
+            0
+          ],
+          "raw": [
+            1,
+            0
+          ],
+          "scale": 1,
+          "time_usec": 1000750
+        },
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            0,
+            0
+          ],
+          "raw": [
+            1,
+            0
+          ],
+          "scale": 1,
+          "time_usec": 1000875
+        },
+        {
+          "device": "mouse-0f6b85f4867d082afa17826a",
+          "dpi": 96,
+          "output": [
+            0,
+            0
+          ],
+          "raw": [
+            -1,
+            0
+          ],
+          "scale": 1,
+          "time_usec": 1001000
+        },
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            0,
+            0
+          ],
+          "raw": [
+            0,
+            0
+          ],
+          "scale": 1,
+          "time_usec": 1001125
+        },
+        {
+          "device": "mouse-0f6b85f4867d082afa17826a",
+          "dpi": 96,
+          "output": [
+            0,
+            0
+          ],
+          "raw": [
+            3,
+            -1
+          ],
+          "scale": 1,
+          "time_usec": 1001250
+        },
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            0,
+            0
+          ],
+          "raw": [
+            2,
+            2
+          ],
+          "scale": 1,
+          "time_usec": 1001375
+        },
+        {
+          "device": "mouse-0f6b85f4867d082afa17826a",
+          "dpi": 96,
+          "output": [
+            0,
+            0
+          ],
+          "raw": [
+            2,
+            1
+          ],
+          "scale": 1,
+          "time_usec": 1001625
+        },
+        {
+          "device": "mouse-0f6b85f4867d082afa17826a",
+          "dpi": 96,
+          "output": [
+            119,
+            0
+          ],
+          "raw": [
+            40,
+            0
+          ],
+          "scale": 1,
+          "time_usec": 1002000
+        },
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 192,
+          "output": [
+            133,
+            6
+          ],
+          "raw": [
+            20,
+            1
+          ],
+          "scale": 2,
+          "time_usec": 1002125
+        },
+        {
+          "device": "mouse-0f6b85f4867d082afa17826a",
+          "dpi": 192,
+          "output": [
+            -2064,
+            0
+          ],
+          "raw": [
+            -200,
+            0
+          ],
+          "scale": 2,
+          "time_usec": 1002250
+        },
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            1,
+            1
+          ],
+          "raw": [
+            1,
+            1
+          ],
+          "scale": 1,
+          "time_usec": 1002625
+        },
+        {
+          "device": "mouse-0f6b85f4867d082afa17826a",
+          "dpi": 96,
+          "output": [
+            -1,
+            -1
+          ],
+          "raw": [
+            -1,
+            -1
+          ],
+          "scale": 1,
+          "time_usec": 1002750
+        },
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 96,
+          "output": [
+            2,
+            1
+          ],
+          "raw": [
+            2,
+            1
+          ],
+          "scale": 1,
+          "time_usec": 1003125
+        },
+        {
+          "device": "mouse-0f6b85f4867d082afa17826a",
+          "dpi": 96,
+          "output": [
+            0,
+            2
+          ],
+          "raw": [
+            -1,
+            2
+          ],
+          "scale": 1,
+          "time_usec": 1003250
+        },
+        {
+          "device": "mouse-176c29590a25328ceca72545",
+          "dpi": 192,
+          "output": [
+            2,
+            0
+          ],
+          "raw": [
+            1,
+            0
+          ],
+          "scale": 2,
+          "time_usec": 1003875
+        },
+        {
+          "device": "mouse-0f6b85f4867d082afa17826a",
+          "dpi": 192,
+          "output": [
+            2,
+            0
+          ],
+          "raw": [
+            1,
+            0
+          ],
+          "scale": 2,
+          "time_usec": 1004000
+        }
+      ]
+    }
+  ]
+}

@@ -59,6 +59,11 @@ QString PointerRuntime::TestReports(const QString& payload)
 		return "{}";
 	if (input["center"].toBool(true))
 		KWin::input()->warpPointer(KWin::workspace()->geometry().center());
+	if (input["position"].isArray())
+	{
+		const auto p = input["position"].toArray();
+		KWin::input()->warpPointer({p[0].toDouble(), p[1].toDouble()});
+	}
 	if (input["reset"].toBool(true))
 		engine.reset();
 	pa::test::ReferenceModel reference(config.settings);
@@ -105,10 +110,13 @@ QString PointerRuntime::TestReports(const QString& payload)
 	}
 	if (input["corrupt"].toBool())
 		raw.rx() += 1;
+	if (input["overflow"].toBool() && active)
+		for (std::size_t i = 0; i <= PA_REPORT_CAPACITY; ++i)
+			pa::capture::appendForTest({});
 	Q_EMIT first->pointerMotion(sum, raw, std::chrono::microseconds(timestamp), first);
 	Q_EMIT first->pointerFrame(first);
 	KWin::input()->uninstallInputEventSpy(&spy);
-	QJsonObject result{{"observed", spy.samples}, {"status", status()}};
+	QJsonObject result{{"observed", spy.samples}, {"positions", spy.positions}, {"status", status()}};
 	// The per-call reference starts with fresh state. Continuous input instead
 	// uses the frozen pre-refactor compositor trace in continuous_input.json.
 	if (input["reset"].toBool(true))
