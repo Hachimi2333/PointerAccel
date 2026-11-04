@@ -5,10 +5,24 @@ project(
   LANGUAGES C CXX)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_AUTOMOC ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 include(CTest)
+option(PA_BUILD_DESKTOP "Build KWin plugin, CLI, GUI and diagnostic probes" ON)
+option(PA_BUILD_BENCHMARKS "Build optional synthetic benchmarks" OFF)
+add_compile_options(-Wall -Wextra -Wpedantic)
+
+# Private, pure C++ engine target. The source bytes and arithmetic are frozen.
+add_library(pa_engine STATIC src/core/pointer_engine.cpp)
+target_include_directories(pa_engine PUBLIC src)
+if(NOT PA_BUILD_DESKTOP)
+  if(BUILD_TESTING)
+    add_subdirectory(tests)
+  endif()
+  return()
+endif()
+
+set(CMAKE_AUTOMOC ON)
 find_package(Python3 REQUIRED COMPONENTS Interpreter)
 find_package(Qt6 REQUIRED COMPONENTS Core DBus Gui Widgets)
 find_package(KWin 6.7 REQUIRED)
@@ -41,20 +55,19 @@ endforeach()
 
 configure_file(src/platform/build_info.hpp.in generated/build_info.hpp @ONLY)
 
-add_compile_options(-Wall -Wextra -Wpedantic)
+add_library(pa_platform STATIC src/platform/paths.cpp src/platform/json_io.cpp src/platform/runtime_identity.cpp)
+target_include_directories(pa_platform PUBLIC src)
+target_link_libraries(pa_platform PUBLIC Qt6::Core ${CMAKE_DL_LIBS})
 
-# Internal build units only; headers are private application sources under src.
-add_library(
-  pa_core STATIC
-  src/core/pointer_engine.cpp
-  src/config/config.cpp
-  src/platform/paths.cpp
-  src/platform/json_io.cpp
-  src/platform/build_metadata.cpp
-  src/platform/runtime_identity.cpp
-  src/input/validation.cpp)
-target_include_directories(pa_core PUBLIC src "${CMAKE_CURRENT_BINARY_DIR}/generated")
-target_link_libraries(pa_core PUBLIC Qt6::Core ${CMAKE_DL_LIBS})
+add_library(pa_config STATIC src/config/config.cpp)
+target_link_libraries(pa_config PUBLIC pa_engine pa_platform)
+
+add_library(pa_runtime_info STATIC src/platform/build_metadata.cpp)
+target_include_directories(pa_runtime_info PUBLIC "${CMAKE_CURRENT_BINARY_DIR}/generated")
+target_link_libraries(pa_runtime_info PUBLIC pa_platform)
+
+add_library(pa_input_validation STATIC src/input/validation.cpp)
+target_link_libraries(pa_input_validation PUBLIC pa_engine)
 
 set(PA_CAPTURE_SOURCES src/input/capture.cpp src/input/import_hooks.cpp)
 add_library(pa_capture STATIC ${PA_CAPTURE_SOURCES})
@@ -65,30 +78,35 @@ set(PA_KWIN_SOURCES src/kwin/plugin_control.hpp src/kwin/plugin.cpp src/kwin/run
                     src/kwin/diagnostics.cpp)
 function(pa_kwin_target target capture stage)
   add_library(${target} MODULE ${PA_KWIN_SOURCES} ${ARGN})
-  target_link_libraries(${target} PRIVATE pa_core ${capture} KWin::kwin Qt6::DBus PkgConfig::UDEV)
+  target_link_libraries(
+    ${target}
+    PRIVATE pa_config
+            pa_runtime_info
+            pa_input_validation
+            ${capture}
+            KWin::kwin
+            Qt6::DBus
+            PkgConfig::UDEV)
   set_target_properties(
     ${target}
     PROPERTIES PREFIX ""
                OUTPUT_NAME pointeraccel_kwin
-               LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/${stage}/qt6/plugins/kwin/plugins")
+               LIBRARY_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/${stage}/qt6/plugins/kwin/plugins")
 endfunction()
 pa_kwin_target(pointeraccel_kwin pa_capture stage)
 
 find_package(KF6Config REQUIRED)
-set(PA_CONTROL_SOURCES
-    src/control/client.cpp
-    src/maintenance/context.cpp
-    src/maintenance/installation.cpp
-    src/maintenance/startup.cpp
-    src/maintenance/session_watch.cpp
-    src/maintenance/watch_paths.cpp
-    src/maintenance/repair.cpp)
+set(PA_MAINTENANCE_SOURCES src/maintenance/context.cpp src/maintenance/installation.cpp src/maintenance/startup.cpp
+                           src/maintenance/session_watch.cpp src/maintenance/watch_paths.cpp src/maintenance/repair.cpp)
+add_library(pa_maintenance STATIC ${PA_MAINTENANCE_SOURCES})
+target_link_libraries(pa_maintenance PUBLIC pa_platform Qt6::DBus KF6::ConfigCore)
+set(PA_CONTROL_SOURCES src/control/client.cpp)
 add_library(pa_control STATIC ${PA_CONTROL_SOURCES})
-target_link_libraries(pa_control PUBLIC pa_core Qt6::DBus KF6::ConfigCore)
+target_link_libraries(pa_control PUBLIC pa_config pa_maintenance)
 
 set(PA_CLI_SOURCES src/cli/main.cpp src/cli/plugin_config.cpp)
 add_executable(pointeraccel ${PA_CLI_SOURCES})
-target_link_libraries(pointeraccel PRIVATE pa_control)
+target_link_libraries(pointeraccel PRIVATE pa_control pa_runtime_info)
 
 add_library(
   pa_gui STATIC
@@ -156,78 +174,5 @@ add_executable(pointeraccel-raw-x11 src/probes/raw_x11.cpp)
 target_link_libraries(pointeraccel-raw-x11 PRIVATE PkgConfig::XINPUT)
 
 if(BUILD_TESTING)
-  add_test(NAME frozen_sources COMMAND ${CMAKE_COMMAND} -DPA_SOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR}
-                                      -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/VerifyFrozen.cmake)
-  add_test(NAME input_equivalence COMMAND Python3::Interpreter ${CMAKE_CURRENT_SOURCE_DIR}/tests/input_equivalence_test.py
-                                         ${CMAKE_CURRENT_BINARY_DIR})
-  set_tests_properties(input_equivalence PROPERTIES TIMEOUT 60)
-
-  add_library(pa_control_test_support STATIC ${PA_CONTROL_SOURCES})
-  target_compile_definitions(pa_control_test_support PRIVATE PA_TESTING)
-  target_link_libraries(pa_control_test_support PUBLIC pa_core Qt6::DBus KF6::ConfigCore)
-
-  add_executable(pointeraccel-test ${PA_CLI_SOURCES})
-  target_link_libraries(pointeraccel-test PRIVATE pa_control_test_support)
-  find_package(Qt6 REQUIRED COMPONENTS Test)
-
-  add_executable(pa_control_peer tests/control_peer.cpp)
-  target_link_libraries(pa_control_peer PRIVATE pa_control)
-
-  add_executable(pa_gui_test tests/gui_test.cpp)
-  target_link_libraries(pa_gui_test PRIVATE pa_gui Qt6::Widgets Qt6::Test)
-  add_dependencies(pa_gui_test pa_control_peer)
-  add_test(NAME gui_control COMMAND dbus-run-session -- $<TARGET_FILE:pa_gui_test>)
-  set_tests_properties(gui_control PROPERTIES TIMEOUT 90 ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
-  foreach(PA_SCALE 1.25 2)
-    add_test(NAME gui_scale_${PA_SCALE} COMMAND dbus-run-session -- $<TARGET_FILE:pa_gui_test> widgetFlow)
-    set_tests_properties(gui_scale_${PA_SCALE} PROPERTIES TIMEOUT 40 ENVIRONMENT
-                                                          "QT_QPA_PLATFORM=offscreen;QT_SCALE_FACTOR=${PA_SCALE}")
-  endforeach()
-
-  add_executable(pa_gui_driver tests/gui_driver.cpp)
-  target_link_libraries(pa_gui_driver PRIVATE pa_gui Qt6::Widgets)
-  find_package(GTest REQUIRED)
-
-  add_executable(pa_core_test tests/core_test.cpp)
-  target_link_libraries(pa_core_test PRIVATE pa_core GTest::gtest_main)
-  include(GoogleTest)
-  gtest_discover_tests(pa_core_test)
-
-  add_executable(pa_engine_test tests/engine/engine_test.cpp tests/engine/model_test.cpp tests/engine/scenario_test.cpp
-                                tests/engine/state_test.cpp)
-  target_link_libraries(pa_engine_test PRIVATE pa_core GTest::gtest_main)
-  gtest_discover_tests(pa_engine_test)
-
-  add_library(pa_fake_libinput SHARED tests/fake_libinput.cpp)
-
-  add_library(pa_fake_consumer SHARED tests/fake_consumer.cpp)
-  target_link_libraries(pa_fake_consumer PRIVATE pa_fake_libinput)
-  target_link_options(pa_fake_consumer PRIVATE -Wl,-z,relro,-z,now)
-
-  add_executable(pa_capture_test tests/capture_test.cpp)
-  target_include_directories(pa_capture_test PRIVATE src)
-  target_link_libraries(pa_capture_test PRIVATE pa_capture pa_fake_consumer pa_fake_libinput)
-  add_test(NAME capture_import_hooks COMMAND pa_capture_test)
-
-  add_library(pa_capture_test_support STATIC ${PA_CAPTURE_SOURCES})
-  target_include_directories(pa_capture_test_support PUBLIC src)
-  target_compile_definitions(pa_capture_test_support PUBLIC PA_TESTING)
-  target_link_libraries(pa_capture_test_support PUBLIC Qt6::Core PkgConfig::LIBINPUT ${CMAKE_DL_LIBS})
-
-  pa_kwin_target(pointeraccel_kwin_test pa_capture_test_support teststage tests/kwin_test_support.cpp)
-  target_include_directories(pointeraccel_kwin_test PRIVATE tests)
-  pa_kwin_target(pointeraccel_kwin_mismatch pa_capture mismatchstage)
-  target_compile_definitions(pointeraccel_kwin_mismatch PRIVATE PA_TEST_RUNTIME_MISMATCH)
-  find_package(Python3 REQUIRED COMPONENTS Interpreter)
-  add_test(NAME compatibility_preflight COMMAND Python3::Interpreter
-                                                "${CMAKE_CURRENT_SOURCE_DIR}/tests/maintenance_test.py")
-  add_test(NAME nested_kwin COMMAND Python3::Interpreter "${CMAKE_CURRENT_SOURCE_DIR}/tests/nested_test.py"
-                                    "${CMAKE_CURRENT_BINARY_DIR}")
-  set_tests_properties(nested_kwin PROPERTIES TIMEOUT 45)
-  add_test(NAME install_roundtrip COMMAND Python3::Interpreter "${CMAKE_CURRENT_SOURCE_DIR}/tests/install_test.py"
-                                          "${CMAKE_CURRENT_BINARY_DIR}")
-  set_tests_properties(install_roundtrip PROPERTIES TIMEOUT 60)
-  add_test(NAME upgrade_guard COMMAND Python3::Interpreter "${CMAKE_CURRENT_SOURCE_DIR}/tests/upgrade_test.py"
-                                      "${CMAKE_CURRENT_BINARY_DIR}")
-  set_tests_properties(upgrade_guard PROPERTIES TIMEOUT 90)
+  add_subdirectory(tests)
 endif()

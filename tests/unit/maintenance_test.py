@@ -7,7 +7,7 @@ import subprocess
 import unittest
 from unittest import mock
 
-spec = importlib.util.spec_from_file_location('maintenance', Path(__file__).resolve().parents[1] / 'scripts/maintenance.py')
+spec = importlib.util.spec_from_file_location('maintenance', Path(__file__).resolve().parents[2] / 'scripts/maintenance.py')
 maintenance = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(maintenance)
 

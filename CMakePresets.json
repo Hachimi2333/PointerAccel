@@ -1,0 +1,18 @@
+{
+  "version": 6,
+  "cmakeMinimumRequired": {"major": 3, "minor": 25, "patch": 0},
+  "configurePresets": [
+    {"name": "full", "displayName": "Full desktop and isolated tests", "generator": "Ninja", "binaryDir": "${sourceDir}/build-full", "cacheVariables": {"CMAKE_BUILD_TYPE": "RelWithDebInfo", "PA_BUILD_DESKTOP": "ON", "BUILD_TESTING": "ON"}},
+    {"name": "engine", "displayName": "Pure C++ engine tests", "generator": "Ninja", "binaryDir": "${sourceDir}/build-engine", "cacheVariables": {"CMAKE_BUILD_TYPE": "RelWithDebInfo", "PA_BUILD_DESKTOP": "OFF", "BUILD_TESTING": "ON"}},
+    {"name": "production", "displayName": "Production desktop artifacts", "generator": "Ninja", "binaryDir": "${sourceDir}/build-production", "cacheVariables": {"CMAKE_BUILD_TYPE": "RelWithDebInfo", "PA_BUILD_DESKTOP": "ON", "BUILD_TESTING": "OFF"}}
+  ],
+  "buildPresets": [
+    {"name": "full", "configurePreset": "full", "jobs": 4},
+    {"name": "engine", "configurePreset": "engine", "jobs": 4},
+    {"name": "production", "configurePreset": "production", "jobs": 4}
+  ],
+  "testPresets": [
+    {"name": "full", "configurePreset": "full", "output": {"outputOnFailure": true}, "execution": {"noTestsAction": "error"}},
+    {"name": "engine", "configurePreset": "engine", "output": {"outputOnFailure": true}, "execution": {"noTestsAction": "error"}}
+  ]
+}

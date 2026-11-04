@@ -3,6 +3,7 @@ import atexit
 import ast
 from contextlib import contextmanager
 import json
+import hashlib
 import os
 from pathlib import Path
 import signal
@@ -10,6 +11,7 @@ import subprocess
 import sys
 import tempfile
 import time
+import textwrap
 import unittest
 import uuid
 
@@ -73,11 +75,30 @@ def run(arguments, *, env=None, expected=0, timeout=20, log=None):
     return result.stdout
 
 
+def digest(path):
+    with Path(path).open('rb') as stream:
+        return hashlib.file_digest(stream, 'sha256').hexdigest()
+
+
+def snapshot(*roots):
+    return {str(path): ('link', os.readlink(path)) if path.is_symlink() else ('file', digest(path))
+            for root in roots for path in Path(root).rglob('*') if path.is_symlink() or path.is_file()}
+
+
+def script(text):
+    """Preserve a shebang while dedenting an embedded command replacement."""
+    first, _, rest = text.partition('\n')
+    return first + '\n' + textwrap.dedent(rest)
+
+
 def dbus_call(env, path, interface, method, *arguments):
-    output = run([
-        'gdbus', 'call', '--session', '--dest', 'org.kde.KWin',
+    try:
+        output = run([
+            'gdbus', 'call', '--session', '--dest', 'org.kde.KWin',
         '--object-path', path, '--method', interface + '.' + method, *arguments,
-    ], env=env, timeout=10).strip()
+        ], env=env, timeout=10).strip()
+    except AssertionError as error:
+        raise RuntimeError(str(error)) from error
     if output == '()':
         return None
     if output in ('(true,)', '(false,)'):

@@ -5,11 +5,11 @@ from pathlib import Path
 import sys
 import unittest
 
-sys.path.insert(0, str(Path(__file__).resolve().parent / 'support'))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'support'))
 from harness import Sandbox, test_main, wait_for
 
 BUILD = Path(sys.argv[1]).resolve()
-FIXTURE = Path(__file__).resolve().parent / 'fixtures/input_equivalence.json'
+FIXTURE = Path(__file__).resolve().parents[1] / 'fixtures/input_equivalence.json'
 
 
 
